@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 232" width="960" height="232" role="img" aria-label="Lo que construyo: aplicaciones web para varias empresas a la vez, con Laravel y Filament; servicios y APIs con .NET; y la puesta en producción con Docker en servidor propio.">
+  <title>xabier@bilbao: ~/lo-que-construyo</title>
+  <defs>
+    <clipPath id="marco"><rect width="960" height="232" rx="12"/></clipPath>
+    
+  </defs>
+  <style>
+    .marco-titulo { font: 500 13px 'Cascadia Mono', 'SF Mono', Consolas, Menlo, 'DejaVu Sans Mono', monospace; fill: #93b3c7; }
+    
+    .texto { font: 400 17px 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; fill: #e8f0f4; }
+  </style>
+  <g clip-path="url(#marco)">
+    <rect width="960" height="232" fill="#0b1720"/>
+    <g transform="translate(0 44)"><rect x="28" y="27" width="7" height="7" rx="1.5" fill="#e9c46a"/>
+    <text class="texto" x="48" y="38">Aplicaciones web para varias empresas a la vez, cada una con su propia base de datos y su propio</text>
+    <text class="texto" x="48" y="66">dominio, con Laravel y Filament.</text>
+    <rect x="28" y="89" width="7" height="7" rx="1.5" fill="#e9c46a"/>
+    <text class="texto" x="48" y="100">Servicios y APIs con .NET.</text>
+    <rect x="28" y="123" width="7" height="7" rx="1.5" fill="#e9c46a"/>
+    <text class="texto" x="48" y="134">La puesta en producción: Docker en servidor propio, HTTPS, copias de seguridad y despliegue</text>
+    <text class="texto" x="48" y="162">automático desde GitHub.</text></g>
+    <line x1="0" y1="44" x2="960" y2="44" stroke="#4f7189" stroke-width="1" opacity=".6"/>
+  </g>
+  <circle cx="30" cy="22" r="4" fill="#e9c46a"/>
+  <text class="marco-titulo" x="46" y="26.5">xabier@bilbao: ~/lo-que-construyo</text>
+  <rect x=".75" y=".75" width="958.5" height="230.5" rx="12" fill="none" stroke="#4f7189" stroke-width="1.5"/>
+</svg>

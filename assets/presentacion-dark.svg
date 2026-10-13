@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 138" width="960" height="138" role="img" aria-label="Hago aplicaciones de gestión a medida para empresas, desde la base de datos hasta el servidor donde se ejecutan.">
+  <title>xabier@bilbao: ~/presentacion</title>
+  <defs>
+    <clipPath id="marco"><rect width="960" height="138" rx="12"/></clipPath>
+    
+  </defs>
+  <style>
+    .marco-titulo { font: 500 13px 'Cascadia Mono', 'SF Mono', Consolas, Menlo, 'DejaVu Sans Mono', monospace; fill: #93b3c7; }
+    
+    .texto { font: 400 17px 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; fill: #e8f0f4; }
+  </style>
+  <g clip-path="url(#marco)">
+    <rect width="960" height="138" fill="#0b1720"/>
+    <g transform="translate(0 44)"><text class="texto" x="28" y="38">Hago aplicaciones de gestión a medida para empresas, desde la base de datos hasta el servidor donde</text>
+    <text class="texto" x="28" y="66">se ejecutan.</text></g>
+    <line x1="0" y1="44" x2="960" y2="44" stroke="#4f7189" stroke-width="1" opacity=".6"/>
+  </g>
+  <circle cx="30" cy="22" r="4" fill="#e9c46a"/>
+  <text class="marco-titulo" x="46" y="26.5">xabier@bilbao: ~/presentacion</text>
+  <rect x=".75" y=".75" width="958.5" height="136.5" rx="12" fill="none" stroke="#4f7189" stroke-width="1.5"/>
+</svg>

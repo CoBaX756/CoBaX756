@@ -1,8 +1,8 @@
 name: Serpiente de contribuciones
 
-# Draws the contribution graph as an animated snake and publishes the two SVGs on the
-# "output" branch, which the README points to. Runs by hand, on every push to main
-# and once a day.
+# Draws the contribution graph as an animated snake, puts it inside the same frame as the
+# rest of the profile and publishes the two SVGs on the "output" branch, which the README
+# points to. Runs by hand, on every push to main and once a day.
 on:
   workflow_dispatch:
   push:
@@ -28,10 +28,14 @@ jobs:
             dist/snake.svg
             dist/snake-dark.svg?palette=github-dark
 
-      - name: Publicar en la rama output
+      - name: Enmarcarla como el resto del perfil
         run: |
           mkdir -p "$RUNNER_TEMP/snake"
-          cp dist/*.svg "$RUNNER_TEMP/snake/"
+          node tools/envolver-serpiente.mjs dist/snake.svg "$RUNNER_TEMP/snake/snake-card-light.svg" light
+          node tools/envolver-serpiente.mjs dist/snake-dark.svg "$RUNNER_TEMP/snake/snake-card-dark.svg" dark
+
+      - name: Publicar en la rama output
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout --orphan output

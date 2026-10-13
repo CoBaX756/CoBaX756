@@ -1,21 +1,11 @@
-// Generates the two profile banners (dark and light) from one drawing.
-// Subject: the Vizcaya Bridge (Puente Colgante) in Bizkaia, a transporter bridge whose gondola
-// carries people and vehicles across the ría. It is a bridge that *transports*, which is
-// what Xabier's software does for the companies he builds it for.
+// Generates every block of the profile (banner, introduction, terminal, what he builds,
+// technologies) in dark and light, all inside the same frame (see marco.mjs).
+// Run from the repo root: node tools/generar-banner.mjs
+// Subject of the banner: the Vizcaya Bridge (Puente Colgante) in Bizkaia, a transporter bridge
+// whose gondola carries people and vehicles across the ría. It is a bridge that *transports*,
+// which is what Xabier's software does for the companies he builds it for.
 import { writeFileSync, mkdirSync } from 'node:fs';
-
-const paletas = {
-  dark: {
-    cieloArriba: '#0b1720', cieloAbajo: '#17303f', agua: '#0a141b', ondas: '#21404f',
-    hierro: '#86a9c0', hierroSuave: '#4f7189', luz: '#e9c46a',
-    texto: '#e8f0f4', textoSuave: '#93b3c7', estrellas: '#cfe1ec',
-  },
-  light: {
-    cieloArriba: '#e9f1f5', cieloAbajo: '#d3e2ea', agua: '#b9cfda', ondas: '#9fbccb',
-    hierro: '#2d4a5e', hierroSuave: '#6b8a9d', luz: '#a8731a',
-    texto: '#0e1b24', textoSuave: '#456375', estrellas: '#ffffff',
-  },
-};
+import { ANCHO, FUENTE, MONO, desmontar, enmarcar, esc, paletas, partir } from './marco.mjs';
 
 const W = 1200, H = 360, AGUA = 292;
 const TORRE_IZQ = 560, TORRE_DER = 1020, VIGA_Y = 74, VIGA_ALTO = 14;
@@ -236,13 +226,13 @@ function banner(nombre, c) {
 // A strip of technology names that scrolls sideways forever, fading out at both ends.
 const TECNOLOGIAS = ['PHP', 'Laravel', 'Filament', 'C#', '.NET', 'MariaDB', 'MySQL', 'Redis', 'Livewire', 'Alpine.js', 'Tailwind CSS', 'Docker', 'Coolify', 'Linux', 'GitHub Actions'];
 
-function cinta(nombre, c) {
+function cinta(c, W = ANCHO - 56) {
   const alto = 52, hueco = 12, anchoCar = 8.6;
   const pastillas = [];
   let x = 0;
   for (const t of TECNOLOGIAS) {
     const ancho = Math.round(t.length * anchoCar + 34);
-    pastillas.push(`<g transform="translate(${x} 8)"><rect width="${ancho}" height="34" rx="17" fill="none" stroke="${c.hierroSuave}" stroke-width="1.4"/><text x="${ancho / 2}" y="22.5" text-anchor="middle">${t}</text></g>`);
+    pastillas.push(`<g transform="translate(${x} 8)"><rect width="${ancho}" height="34" rx="17" fill="none" stroke="${c.hierroSuave}" stroke-width="1.4"/><text class="pastilla" x="${ancho / 2}" y="22.5" text-anchor="middle">${t}</text></g>`);
     x += ancho + hueco;
   }
   const largo = x; // one full set; the second copy follows it so the loop has no seam
@@ -257,7 +247,7 @@ function cinta(nombre, c) {
     <mask id="m"><rect width="${W}" height="${alto}" fill="url(#borde)"/></mask>
   </defs>
   <style>
-    text { font: 500 15px 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; fill: ${c.texto}; }
+    .pastilla { font: 500 15px ${FUENTE}; fill: ${c.texto}; }
     .cinta { animation: desfilar 48s linear infinite; }
     @keyframes desfilar { from { transform: translateX(0); } to { transform: translateX(-${largo}px); } }
     @media (prefers-reduced-motion: reduce) { .cinta { animation: none; } }
@@ -282,7 +272,7 @@ const LINEAS_TERMINAL = [
 ];
 
 function terminal(c) {
-  const ancho = 960, anchoCar = 9.7, margen = 28, filaY = 84, alto = 34;
+  const anchoCar = 9.7, margen = 28, filaY = 44, paso = 34;
   const total = 22; // seconds for one full loop
   const seg = (s) => ((s / total) * 100).toFixed(2);
   let t = 1.2;
@@ -292,7 +282,7 @@ function terminal(c) {
     const dur = Math.max(0.5, n * 0.06);
     const inicio = t;
     t += dur + (l.prompt ? 0.5 : 1.1);
-    return { ...l, texto, n, inicio, dur, y: filaY + i * alto };
+    return { ...l, texto, n, inicio, dur, y: filaY + i * paso };
   });
   const fin = t;
   const css = bloques.map((b, i) => `
@@ -303,18 +293,21 @@ function terminal(c) {
       ${seg(total - 1.8)}%, 100% { width: 0; }
     }`).join('');
   const lineas = bloques.map((b, i) => {
-    const x = margen;
-    const relleno = b.ok ? c.hierro : c.texto;
-    const prompt = b.prompt ? `<tspan fill="${c.luz}">$</tspan><tspan fill="${c.texto}"> ${b.texto.slice(2)}</tspan>` : `<tspan fill="${relleno}">${b.texto}</tspan>`;
-    return `<clipPath id="c${i}"><rect class="tipo${i}" x="${x}" y="${b.y - 20}" width="0" height="28"/></clipPath>
-    <text clip-path="url(#c${i})" x="${x}" y="${b.y}" textLength="${b.n * anchoCar}" lengthAdjust="spacingAndGlyphs" xml:space="preserve">${prompt}</text>`;
+    const contenido = b.prompt
+      ? `<tspan fill="${c.luz}">$</tspan><tspan fill="${c.texto}"> ${b.texto.slice(2)}</tspan>`
+      : `<tspan fill="${b.ok ? c.hierro : c.texto}">${b.texto}</tspan>`;
+    return `<clipPath id="c${i}"><rect class="tipo${i}" x="${margen}" y="${b.y - 20}" width="0" height="28"/></clipPath>
+    <text class="term" clip-path="url(#c${i})" x="${margen}" y="${b.y}" textLength="${b.n * anchoCar}" lengthAdjust="spacingAndGlyphs" xml:space="preserve">${contenido}</text>`;
   }).join('\n    ');
-  const cursorX = margen + 0;
-  const altoTotal = filaY + LINEAS_TERMINAL.length * alto + 6;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${ancho} ${altoTotal}" width="${ancho}" height="${altoTotal}" role="img" aria-label="Terminal con tres comandos: whoami, que responde Xabier, software de gestión a medida en Bilbao; ls aplicaciones, con multiempresa, apis y produccion; y docker compose up, con todo en marcha.">
-  <style>
-    text { font: 500 16px 'Cascadia Mono', 'SF Mono', Consolas, Menlo, 'DejaVu Sans Mono', monospace; }
-    .titulo { font: 500 13px 'Segoe UI', system-ui, sans-serif; fill: ${c.textoSuave}; }
+  const alto = filaY + LINEAS_TERMINAL.length * paso - 4;
+  const cursor = `<g class="cursorgrupo"><rect class="cursor" x="${margen + LINEAS_TERMINAL.at(-1).texto.length * anchoCar + 8}" y="${filaY + (LINEAS_TERMINAL.length - 1) * paso - 15}" width="9" height="19" fill="${c.luz}"/></g>`;
+  return enmarcar({
+    titulo: 'xabier@bilbao: ~/trabajo',
+    descripcion: 'Terminal con tres comandos: whoami, que responde Xabier, software de gestión a medida en Bilbao; ls aplicaciones, con multiempresa, apis y produccion; y docker compose up, con todo en marcha.',
+    alto,
+    defs: '',
+    estilos: `
+    .term { font: 500 16px ${MONO}; }
     .cursor { animation: cursor 1.05s steps(1) infinite; }
     .cursorgrupo { animation: aparece ${total}s infinite; }
     @keyframes aparece { 0%, ${seg(fin - 0.2)}% { opacity: 0; } ${seg(fin)}%, ${seg(total - 2.5)}% { opacity: 1; } ${seg(total - 1.8)}%, 100% { opacity: 0; } }
@@ -324,23 +317,102 @@ function terminal(c) {
       ${bloques.map((b, i) => `.tipo${i}`).join(', ')} { animation: none; }
       ${bloques.map((b, i) => `.tipo${i} { width: ${b.n * anchoCar}px; }`).join(' ')}
       .cursor, .cursorgrupo { animation: none; }
-    }
-  </style>
-  <rect x=".75" y=".75" width="${ancho - 1.5}" height="${altoTotal - 1.5}" rx="12" fill="${c.cieloArriba}" stroke="${c.hierroSuave}" stroke-width="1.5"/>
-  <line x1=".75" y1="44" x2="${ancho - .75}" y2="44" stroke="${c.hierroSuave}" stroke-width="1" opacity=".6"/>
-  <text class="titulo" x="${margen}" y="28" style="font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; fill: ${c.textoSuave}">xabier@bilbao: ~/trabajo</text>
-  <g>
-    ${lineas}
-  </g>
-  <g class="cursorgrupo"><rect class="cursor" x="${margen + (LINEAS_TERMINAL.at(-1).texto.length) * anchoCar + 8}" y="${filaY + (LINEAS_TERMINAL.length - 1) * alto - 15}" width="9" height="19" fill="${c.luz}"/></g>
-</svg>
-`;
+    }`,
+    cuerpo: `${lineas}\n    ${cursor}`,
+  }, c);
 }
 
-mkdirSync('assets', { recursive: true }); // run from the repo root: node tools/generar-banner.mjs
-for (const [nombre, c] of Object.entries(paletas)) {
-  writeFileSync(`assets/banner-${nombre}.svg`, banner(nombre, c));
-  writeFileSync(`assets/tecnologias-${nombre}.svg`, cinta(nombre, c));
-  writeFileSync(`assets/terminal-${nombre}.svg`, terminal(c));
+// ── The blocks that are mostly text, drawn in the same frame ────────────────────────────
+
+const MARGEN = 28;
+
+function bloqueTexto({ titulo, descripcion, parrafos = [], vinetas = [], max = 100 }, c) {
+  const filas = [];
+  let y = 38;
+  const estilos = `
+    .texto { font: 400 17px ${FUENTE}; fill: ${c.texto}; }`;
+  for (const p of parrafos) {
+    for (const linea of partir(p, max)) {
+      filas.push(`<text class="texto" x="${MARGEN}" y="${y}">${esc(linea)}</text>`);
+      y += 28;
+    }
+    y += 8;
+  }
+  for (const v of vinetas) {
+    const lineas = partir(v, max - 4);
+    filas.push(`<rect x="${MARGEN}" y="${y - 11}" width="7" height="7" rx="1.5" fill="${c.luz}"/>`);
+    for (const linea of lineas) {
+      filas.push(`<text class="texto" x="${MARGEN + 20}" y="${y}">${esc(linea)}</text>`);
+      y += 28;
+    }
+    y += 6;
+  }
+  return enmarcar({ titulo, descripcion, alto: y - 8, cuerpo: filas.join('\n    '), estilos }, c);
 }
-console.log('listo: assets/banner-*.svg, assets/tecnologias-*.svg y assets/terminal-*.svg');
+
+const CATEGORIAS = [
+  ['Backend', 'PHP, Laravel, Filament, C#, .NET'],
+  ['Datos', 'MariaDB, MySQL, Redis'],
+  ['Interfaz', 'Livewire, Alpine.js, Tailwind CSS'],
+  ['Servidores', 'Linux, Docker, Coolify, GitHub Actions'],
+];
+
+function bloqueTecnologias(c) {
+  const tira = desmontar(cinta(c, ANCHO - 2 * MARGEN));
+  const baseFilas = 78;
+  const filas = CATEGORIAS.map(([etiqueta, items], i) => `
+    <text class="etiqueta" x="${MARGEN}" y="${baseFilas + i * 30}">${esc(etiqueta)}</text>
+    <text class="texto" x="${MARGEN + 120}" y="${baseFilas + i * 30}">${esc(items)}</text>`).join('');
+  return enmarcar({
+    titulo: 'xabier@bilbao: ~/tecnologias',
+    descripcion: 'Con qué trabajo. ' + CATEGORIAS.map(([e, i]) => `${e}: ${i}.`).join(' '),
+    alto: baseFilas + CATEGORIAS.length * 30 - 6,
+    // The scrolling strip keeps its own CSS; ids and class names do not clash with the frame.
+    defs: tira.defs,
+    estilos: `${tira.estilos}
+    .texto { font: 400 17px ${FUENTE}; fill: ${c.texto}; }
+    .etiqueta { font: 600 17px ${FUENTE}; fill: ${c.hierro}; }`,
+    cuerpo: `<g transform="translate(${MARGEN} 10)">${tira.dibujo}</g>${filas}`,
+  }, c);
+}
+
+function bloqueBanner(nombre, c) {
+  const escena = desmontar(banner(nombre, c));
+  const escala = ANCHO / W; // the 1200x360 drawing is shown at the frame's width
+  return enmarcar({
+    titulo: 'xabier@bilbao: ~',
+    descripcion: 'Xabier, software de gestión a medida desde Bilbao. Ilustración del Puente Colgante de Bizkaia con una góndola que cruza la ría de un lado a otro.',
+    alto: Math.round(H * escala),
+    defs: escena.defs,
+    estilos: escena.estilos,
+    cuerpo: `<svg x="0" y="0" width="${ANCHO}" height="${Math.round(H * escala)}" viewBox="0 0 ${W} ${H}">${escena.dibujo}</svg>`,
+  }, c);
+}
+
+mkdirSync('assets', { recursive: true });
+const salida = {
+  banner: (n, c) => bloqueBanner(n, c),
+  presentacion: (n, c) => bloqueTexto({
+    titulo: 'xabier@bilbao: ~/presentacion',
+    descripcion: 'Hago aplicaciones de gestión a medida para empresas, desde la base de datos hasta el servidor donde se ejecutan.',
+    parrafos: ['Hago aplicaciones de gestión a medida para empresas, desde la base de datos hasta el servidor donde se ejecutan.'],
+  }, c),
+  terminal: (n, c) => terminal(c),
+  construyo: (n, c) => bloqueTexto({
+    titulo: 'xabier@bilbao: ~/lo-que-construyo',
+    descripcion: 'Lo que construyo: aplicaciones web para varias empresas a la vez, con Laravel y Filament; servicios y APIs con .NET; y la puesta en producción con Docker en servidor propio.',
+    vinetas: [
+      'Aplicaciones web para varias empresas a la vez, cada una con su propia base de datos y su propio dominio, con Laravel y Filament.',
+      'Servicios y APIs con .NET.',
+      'La puesta en producción: Docker en servidor propio, HTTPS, copias de seguridad y despliegue automático desde GitHub.',
+    ],
+  }, c),
+  tecnologias: (n, c) => bloqueTecnologias(c),
+};
+
+for (const [nombre, c] of Object.entries(paletas)) {
+  for (const [bloque, dibujar] of Object.entries(salida)) {
+    writeFileSync(`assets/${bloque}-${nombre}.svg`, dibujar(nombre, c));
+  }
+}
+console.log('listo: assets/{banner,presentacion,terminal,construyo,tecnologias}-{dark,light}.svg');
