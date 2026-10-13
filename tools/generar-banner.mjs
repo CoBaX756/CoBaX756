@@ -295,7 +295,7 @@ function cinta(c, tema, W = ANCHO) {
 // textLength pins each line to exactly that width whatever monospace font the viewer has.
 const LINEAS_TERMINAL = [
   { prompt: true, texto: 'whoami' },
-  { texto: 'Xabier, software de gestión a medida en Bilbao' },
+  { texto: 'Xabier, desarrollo software de gestión a medida en Bilbao' },
   { prompt: true, texto: 'ls aplicaciones/' },
   { texto: 'multiempresa/   apis/   produccion/' },
   { prompt: true, texto: 'docker compose up -d' },
@@ -334,7 +334,7 @@ function terminal(c) {
   const cursor = `<g class="cursorgrupo"><rect class="cursor" x="${margen + LINEAS_TERMINAL.at(-1).texto.length * anchoCar + 8}" y="${filaY + (LINEAS_TERMINAL.length - 1) * paso - 15}" width="9" height="19" fill="${c.verde}"/></g>`;
   return enmarcar({
     titulo: 'xabier@bilbao: ~/trabajo',
-    descripcion: 'Terminal con tres comandos: whoami, que responde Xabier, software de gestión a medida en Bilbao; ls aplicaciones, con multiempresa, apis y produccion; y docker compose up, con todo en marcha.',
+    descripcion: 'Terminal con tres comandos: whoami, que responde Xabier, desarrollo software de gestión a medida en Bilbao; ls aplicaciones, con multiempresa, apis y produccion; y docker compose up, con todo en marcha.',
     alto,
     defs: '',
     estilos: `
