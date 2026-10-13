@@ -86,10 +86,12 @@ function ondas(c) {
 
 function gondola(c) {
   // Drawn with its centre at x=0 so a single translateX moves it along the deck.
+  // The carriage is as wide as the platform, so all four hangers start on it.
   const cx = 0, y = VIGA_Y + VIGA_ALTO + 3, plataformaY = 232;
   return `
   <g class="gondola" style="transform-box: fill-box">
-    <rect x="${cx - 12}" y="${y}" width="24" height="9" rx="2" fill="${c.hierro}"/>
+    <rect x="${cx - 36}" y="${y}" width="72" height="9" rx="2" fill="${c.hierro}"/>
+    <rect x="${cx - 6}" y="${y - 3}" width="12" height="3" fill="${c.hierro}"/>
     <g stroke="${c.hierroSuave}" stroke-width="1.2">
       <line x1="${cx - 30}" y1="${y + 9}" x2="${cx - 30}" y2="${plataformaY}"/>
       <line x1="${cx - 10}" y1="${y + 9}" x2="${cx - 10}" y2="${plataformaY}"/>
@@ -267,9 +269,78 @@ function cinta(nombre, c) {
 `;
 }
 
+// A terminal card that types its own lines, one after another, and repeats. Every line
+// is clipped by a rectangle that grows in as many steps as the line has characters, and
+// textLength pins each line to exactly that width whatever monospace font the viewer has.
+const LINEAS_TERMINAL = [
+  { prompt: true, texto: 'whoami' },
+  { texto: 'Xabier, software de gestión a medida en Bilbao' },
+  { prompt: true, texto: 'ls aplicaciones/' },
+  { texto: 'multiempresa/   apis/   produccion/' },
+  { prompt: true, texto: 'docker compose up -d' },
+  { texto: '✔ todo en marcha', ok: true },
+];
+
+function terminal(c) {
+  const ancho = 960, anchoCar = 9.7, margen = 28, filaY = 84, alto = 34;
+  const total = 22; // seconds for one full loop
+  const seg = (s) => ((s / total) * 100).toFixed(2);
+  let t = 1.2;
+  const bloques = LINEAS_TERMINAL.map((l, i) => {
+    const texto = (l.prompt ? '$ ' : '') + l.texto;
+    const n = [...texto].length;
+    const dur = Math.max(0.5, n * 0.06);
+    const inicio = t;
+    t += dur + (l.prompt ? 0.5 : 1.1);
+    return { ...l, texto, n, inicio, dur, y: filaY + i * alto };
+  });
+  const fin = t;
+  const css = bloques.map((b, i) => `
+    .tipo${i} { animation: escribir${i} ${total}s infinite; }
+    @keyframes escribir${i} {
+      0%, ${seg(b.inicio)}% { width: 0; animation-timing-function: steps(${b.n}, end); }
+      ${seg(b.inicio + b.dur)}%, ${seg(total - 2.5)}% { width: ${b.n * anchoCar}px; }
+      ${seg(total - 1.8)}%, 100% { width: 0; }
+    }`).join('');
+  const lineas = bloques.map((b, i) => {
+    const x = margen;
+    const relleno = b.ok ? c.hierro : c.texto;
+    const prompt = b.prompt ? `<tspan fill="${c.luz}">$</tspan><tspan fill="${c.texto}"> ${b.texto.slice(2)}</tspan>` : `<tspan fill="${relleno}">${b.texto}</tspan>`;
+    return `<clipPath id="c${i}"><rect class="tipo${i}" x="${x}" y="${b.y - 20}" width="0" height="28"/></clipPath>
+    <text clip-path="url(#c${i})" x="${x}" y="${b.y}" textLength="${b.n * anchoCar}" lengthAdjust="spacingAndGlyphs" xml:space="preserve">${prompt}</text>`;
+  }).join('\n    ');
+  const cursorX = margen + 0;
+  const altoTotal = filaY + LINEAS_TERMINAL.length * alto + 6;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${ancho} ${altoTotal}" width="${ancho}" height="${altoTotal}" role="img" aria-label="Terminal con tres comandos: whoami, que responde Xabier, software de gestión a medida en Bilbao; ls aplicaciones, con multiempresa, apis y produccion; y docker compose up, con todo en marcha.">
+  <style>
+    text { font: 500 16px 'Cascadia Mono', 'SF Mono', Consolas, Menlo, 'DejaVu Sans Mono', monospace; }
+    .titulo { font: 500 13px 'Segoe UI', system-ui, sans-serif; fill: ${c.textoSuave}; }
+    .cursor { animation: cursor 1.05s steps(1) infinite; }
+    .cursorgrupo { animation: aparece ${total}s infinite; }
+    @keyframes aparece { 0%, ${seg(fin - 0.2)}% { opacity: 0; } ${seg(fin)}%, ${seg(total - 2.5)}% { opacity: 1; } ${seg(total - 1.8)}%, 100% { opacity: 0; } }
+    ${css}
+    @keyframes cursor { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      ${bloques.map((b, i) => `.tipo${i}`).join(', ')} { animation: none; }
+      ${bloques.map((b, i) => `.tipo${i} { width: ${b.n * anchoCar}px; }`).join(' ')}
+      .cursor, .cursorgrupo { animation: none; }
+    }
+  </style>
+  <rect x=".75" y=".75" width="${ancho - 1.5}" height="${altoTotal - 1.5}" rx="12" fill="${c.cieloArriba}" stroke="${c.hierroSuave}" stroke-width="1.5"/>
+  <line x1=".75" y1="44" x2="${ancho - .75}" y2="44" stroke="${c.hierroSuave}" stroke-width="1" opacity=".6"/>
+  <text class="titulo" x="${margen}" y="28" style="font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; fill: ${c.textoSuave}">xabier@bilbao: ~/trabajo</text>
+  <g>
+    ${lineas}
+  </g>
+  <g class="cursorgrupo"><rect class="cursor" x="${margen + (LINEAS_TERMINAL.at(-1).texto.length) * anchoCar + 8}" y="${filaY + (LINEAS_TERMINAL.length - 1) * alto - 15}" width="9" height="19" fill="${c.luz}"/></g>
+</svg>
+`;
+}
+
 mkdirSync('assets', { recursive: true }); // run from the repo root: node tools/generar-banner.mjs
 for (const [nombre, c] of Object.entries(paletas)) {
   writeFileSync(`assets/banner-${nombre}.svg`, banner(nombre, c));
   writeFileSync(`assets/tecnologias-${nombre}.svg`, cinta(nombre, c));
+  writeFileSync(`assets/terminal-${nombre}.svg`, terminal(c));
 }
-console.log('listo: assets/banner-*.svg y assets/tecnologias-*.svg');
+console.log('listo: assets/banner-*.svg, assets/tecnologias-*.svg y assets/terminal-*.svg');

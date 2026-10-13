@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 294" width="960" height="294" role="img" aria-label="Terminal con tres comandos: whoami, que responde Xabier, software de gestión a medida en Bilbao; ls aplicaciones, con multiempresa, apis y produccion; y docker compose up, con todo en marcha.">
+  <style>
+    text { font: 500 16px 'Cascadia Mono', 'SF Mono', Consolas, Menlo, 'DejaVu Sans Mono', monospace; }
+    .titulo { font: 500 13px 'Segoe UI', system-ui, sans-serif; fill: #93b3c7; }
+    .cursor { animation: cursor 1.05s steps(1) infinite; }
+    .cursorgrupo { animation: aparece 22s infinite; }
+    @keyframes aparece { 0%, 66.00% { opacity: 0; } 66.91%, 88.64% { opacity: 1; } 91.82%, 100% { opacity: 0; } }
+    
+    .tipo0 { animation: escribir0 22s infinite; }
+    @keyframes escribir0 {
+      0%, 5.45% { width: 0; animation-timing-function: steps(8, end); }
+      7.73%, 88.64% { width: 77.6px; }
+      91.82%, 100% { width: 0; }
+    }
+    .tipo1 { animation: escribir1 22s infinite; }
+    @keyframes escribir1 {
+      0%, 10.00% { width: 0; animation-timing-function: steps(46, end); }
+      22.55%, 88.64% { width: 446.2px; }
+      91.82%, 100% { width: 0; }
+    }
+    .tipo2 { animation: escribir2 22s infinite; }
+    @keyframes escribir2 {
+      0%, 27.55% { width: 0; animation-timing-function: steps(18, end); }
+      32.45%, 88.64% { width: 174.6px; }
+      91.82%, 100% { width: 0; }
+    }
+    .tipo3 { animation: escribir3 22s infinite; }
+    @keyframes escribir3 {
+      0%, 34.73% { width: 0; animation-timing-function: steps(35, end); }
+      44.27%, 88.64% { width: 339.5px; }
+      91.82%, 100% { width: 0; }
+    }
+    .tipo4 { animation: escribir4 22s infinite; }
+    @keyframes escribir4 {
+      0%, 49.27% { width: 0; animation-timing-function: steps(22, end); }
+      55.27%, 88.64% { width: 213.39999999999998px; }
+      91.82%, 100% { width: 0; }
+    }
+    .tipo5 { animation: escribir5 22s infinite; }
+    @keyframes escribir5 {
+      0%, 57.55% { width: 0; animation-timing-function: steps(16, end); }
+      61.91%, 88.64% { width: 155.2px; }
+      91.82%, 100% { width: 0; }
+    }
+    @keyframes cursor { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      .tipo0, .tipo1, .tipo2, .tipo3, .tipo4, .tipo5 { animation: none; }
+      .tipo0 { width: 77.6px; } .tipo1 { width: 446.2px; } .tipo2 { width: 174.6px; } .tipo3 { width: 339.5px; } .tipo4 { width: 213.39999999999998px; } .tipo5 { width: 155.2px; }
+      .cursor, .cursorgrupo { animation: none; }
+    }
+  </style>
+  <rect x=".75" y=".75" width="958.5" height="292.5" rx="12" fill="#0b1720" stroke="#4f7189" stroke-width="1.5"/>
+  <line x1=".75" y1="44" x2="959.25" y2="44" stroke="#4f7189" stroke-width="1" opacity=".6"/>
+  <text class="titulo" x="28" y="28" style="font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; fill: #93b3c7">xabier@bilbao: ~/trabajo</text>
+  <g>
+    <clipPath id="c0"><rect class="tipo0" x="28" y="64" width="0" height="28"/></clipPath>
+    <text clip-path="url(#c0)" x="28" y="84" textLength="77.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#e9c46a">$</tspan><tspan fill="#e8f0f4"> whoami</tspan></text>
+    <clipPath id="c1"><rect class="tipo1" x="28" y="98" width="0" height="28"/></clipPath>
+    <text clip-path="url(#c1)" x="28" y="118" textLength="446.2" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#e8f0f4">Xabier, software de gestión a medida en Bilbao</tspan></text>
+    <clipPath id="c2"><rect class="tipo2" x="28" y="132" width="0" height="28"/></clipPath>
+    <text clip-path="url(#c2)" x="28" y="152" textLength="174.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#e9c46a">$</tspan><tspan fill="#e8f0f4"> ls aplicaciones/</tspan></text>
+    <clipPath id="c3"><rect class="tipo3" x="28" y="166" width="0" height="28"/></clipPath>
+    <text clip-path="url(#c3)" x="28" y="186" textLength="339.5" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#e8f0f4">multiempresa/   apis/   produccion/</tspan></text>
+    <clipPath id="c4"><rect class="tipo4" x="28" y="200" width="0" height="28"/></clipPath>
+    <text clip-path="url(#c4)" x="28" y="220" textLength="213.39999999999998" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#e9c46a">$</tspan><tspan fill="#e8f0f4"> docker compose up -d</tspan></text>
+    <clipPath id="c5"><rect class="tipo5" x="28" y="234" width="0" height="28"/></clipPath>
+    <text clip-path="url(#c5)" x="28" y="254" textLength="155.2" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#86a9c0">✔ todo en marcha</tspan></text>
+  </g>
+  <g class="cursorgrupo"><rect class="cursor" x="191.2" y="239" width="9" height="19" fill="#e9c46a"/></g>
+</svg>

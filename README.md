@@ -6,6 +6,12 @@
 
 Hago aplicaciones de gestión a medida para empresas, desde la base de datos hasta el servidor donde se ejecutan.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/terminal-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/terminal-light.svg">
+  <img src="assets/terminal-dark.svg" alt="Terminal: whoami responde Xabier, software de gestión a medida en Bilbao; ls aplicaciones muestra multiempresa, apis y produccion; docker compose up termina con todo en marcha." width="100%">
+</picture>
+
 ### Lo que construyo
 
 - Aplicaciones web para varias empresas a la vez, con su propia base de datos y su propio dominio, con Laravel y Filament.
