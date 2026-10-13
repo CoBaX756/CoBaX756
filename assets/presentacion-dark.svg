@@ -1,21 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 138" width="960" height="138" role="img" aria-label="Hago aplicaciones de gestión a medida para empresas, desde la base de datos hasta el servidor donde se ejecutan.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 148" width="960" height="148" role="img" aria-label="Hago aplicaciones de gestión a medida para empresas, desde la base de datos hasta el servidor donde se ejecutan.">
   <title>xabier@bilbao: ~/presentacion</title>
-  <defs>
-    <clipPath id="marco"><rect width="960" height="138" rx="12"/></clipPath>
-    
-  </defs>
+  <defs></defs>
   <style>
-    .marco-titulo { font: 500 13px 'Cascadia Mono', 'SF Mono', Consolas, Menlo, 'DejaVu Sans Mono', monospace; fill: #93b3c7; }
-    
-    .texto { font: 400 17px 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; fill: #e8f0f4; }
+    .etq { font: 500 13px 'Cascadia Mono', 'SF Mono', Consolas, Menlo, 'DejaVu Sans Mono', monospace; fill: #93b3c7; }
+    .grande { font: 400 22px 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; fill: #e8f0f4; }
   </style>
-  <g clip-path="url(#marco)">
-    <rect width="960" height="138" fill="#0b1720"/>
-    <g transform="translate(0 44)"><text class="texto" x="28" y="38">Hago aplicaciones de gestión a medida para empresas, desde la base de datos hasta el servidor donde</text>
-    <text class="texto" x="28" y="66">se ejecutan.</text></g>
-    <line x1="0" y1="44" x2="960" y2="44" stroke="#4f7189" stroke-width="1" opacity=".6"/>
-  </g>
-  <circle cx="30" cy="22" r="4" fill="#e9c46a"/>
-  <text class="marco-titulo" x="46" y="26.5">xabier@bilbao: ~/presentacion</text>
-  <rect x=".75" y=".75" width="958.5" height="136.5" rx="12" fill="none" stroke="#4f7189" stroke-width="1.5"/>
+  <rect width="960" height="148" rx="6" fill="#0b1720"/>
+  <g stroke="#4f7189" stroke-width="1.2"><line x1="8" y1="0" x2="22" y2="14"/><line x1="22" y1="14" x2="8" y2="28"/><line x1="8" y1="28" x2="22" y2="42"/><line x1="22" y1="42" x2="8" y2="56"/><line x1="8" y1="56" x2="22" y2="70"/><line x1="22" y1="70" x2="8" y2="84"/><line x1="8" y1="84" x2="22" y2="98"/><line x1="22" y1="98" x2="8" y2="112"/><line x1="8" y1="112" x2="22" y2="126"/><line x1="22" y1="126" x2="8" y2="140"/><line x1="8" y1="140" x2="22" y2="148"/></g>
+  <line x1="8" y1="0" x2="8" y2="148" stroke="#86a9c0" stroke-width="2"/>
+  <line x1="22" y1="0" x2="22" y2="148" stroke="#86a9c0" stroke-width="2"/>
+  <circle cx="60" cy="29.5" r="3.6" fill="#e9c46a"/>
+    <text class="etq" x="72" y="34">xabier@bilbao: ~/presentacion</text>
+  <text class="grande" x="56" y="74">Hago aplicaciones de gestión a medida para empresas, desde la base de datos</text>
+  <text class="grande" x="56" y="108">hasta el servidor donde se ejecutan.</text>
 </svg>

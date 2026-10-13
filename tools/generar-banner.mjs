@@ -5,7 +5,7 @@
 // whose gondola carries people and vehicles across the ría. It is a bridge that *transports*,
 // which is what Xabier's software does for the companies he builds it for.
 import { writeFileSync, mkdirSync } from 'node:fs';
-import { ANCHO, FUENTE, MONO, desmontar, enmarcar, esc, paletas, partir } from './marco.mjs';
+import { ANCHO, FUENTE, MONO, celosia, desmontar, enmarcar, esc, etiqueta, lienzo, paletas, partir } from './marco.mjs';
 
 const W = 1200, H = 360, AGUA = 292;
 const TORRE_IZQ = 560, TORRE_DER = 1020, VIGA_Y = 74, VIGA_ALTO = 14;
@@ -322,34 +322,83 @@ function terminal(c) {
   }, c);
 }
 
-// ── The blocks that are mostly text, drawn in the same frame ────────────────────────────
+// ── One container per block ──────────────────────────────────────────────────────────────
+// They share palette, typefaces, the amber lamp and the steel line work (see marco.mjs),
+// but each wears its own shape: a window, a plate with a girder at its side, three pillars,
+// a truss rail, corner marks.
 
 const MARGEN = 28;
 
-function bloqueTexto({ titulo, descripcion, parrafos = [], vinetas = [], max = 100 }, c) {
-  const filas = [];
-  let y = 38;
-  const estilos = `
-    .texto { font: 400 17px ${FUENTE}; fill: ${c.texto}; }`;
-  for (const p of parrafos) {
-    for (const linea of partir(p, max)) {
-      filas.push(`<text class="texto" x="${MARGEN}" y="${y}">${esc(linea)}</text>`);
-      y += 28;
-    }
-    y += 8;
+// Introduction: no box. A tinted plate with a girder running down its left side.
+function bloquePresentacion(c) {
+  const texto = 'Hago aplicaciones de gestión a medida para empresas, desde la base de datos hasta el servidor donde se ejecutan.';
+  const lineas = partir(texto, 78);
+  const alto = 58 + lineas.length * 34 + 22;
+  const trazos = lineas.map((l, i) => `<text class="grande" x="56" y="${74 + i * 34}">${esc(l)}</text>`).join('\n  ');
+  const celosiaLateral = [];
+  for (let y = 0; y < alto; y += 14) {
+    const par = (y / 14) % 2 === 0;
+    celosiaLateral.push(`<line x1="${par ? 8 : 22}" y1="${y}" x2="${par ? 22 : 8}" y2="${Math.min(y + 14, alto)}"/>`);
   }
-  for (const v of vinetas) {
-    const lineas = partir(v, max - 4);
-    filas.push(`<rect x="${MARGEN}" y="${y - 11}" width="7" height="7" rx="1.5" fill="${c.luz}"/>`);
-    for (const linea of lineas) {
-      filas.push(`<text class="texto" x="${MARGEN + 20}" y="${y}">${esc(linea)}</text>`);
-      y += 28;
-    }
-    y += 6;
-  }
-  return enmarcar({ titulo, descripcion, alto: y - 8, cuerpo: filas.join('\n    '), estilos }, c);
+  return lienzo({
+    titulo: 'xabier@bilbao: ~/presentacion',
+    descripcion: texto,
+    alto,
+    estilos: `.grande { font: 400 22px ${FUENTE}; fill: ${c.texto}; }`,
+    cuerpo: `<rect width="${ANCHO}" height="${alto}" rx="6" fill="${c.cieloArriba}"/>
+  <g stroke="${c.hierroSuave}" stroke-width="1.2">${celosiaLateral.join('')}</g>
+  <line x1="8" y1="0" x2="8" y2="${alto}" stroke="${c.hierro}" stroke-width="2"/>
+  <line x1="22" y1="0" x2="22" y2="${alto}" stroke="${c.hierro}" stroke-width="2"/>
+  ${etiqueta('xabier@bilbao: ~/presentacion', 56, 34, c)}
+  ${trazos}`,
+  }, c);
 }
 
+// What he builds: three pillars side by side, each with a deck beam on top and a small drawing.
+const ICONOS = {
+  web: (c) => `<g stroke="${c.hierro}" stroke-width="2" fill="none" stroke-linejoin="round">
+      <rect x="0" y="0" width="44" height="34" rx="4"/><line x1="0" y1="9" x2="44" y2="9"/>
+      <circle cx="6" cy="4.5" r="1" fill="${c.hierro}"/><circle cx="11" cy="4.5" r="1" fill="${c.hierro}"/>
+      <line x1="8" y1="18" x2="26" y2="18"/><line x1="8" y1="25" x2="36" y2="25"/></g>`,
+  api: (c) => `<g stroke="${c.hierro}" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M13 2 C6 2 8 14 2 17 C8 20 6 32 13 32"/><path d="M31 2 C38 2 36 14 42 17 C36 20 38 32 31 32"/></g>
+      <circle cx="22" cy="17" r="2.6" fill="${c.luz}"/>`,
+  servidor: (c) => `<g stroke="${c.hierro}" stroke-width="2" fill="none" stroke-linejoin="round">
+      <rect x="0" y="0" width="44" height="14" rx="3"/><rect x="0" y="20" width="44" height="14" rx="3"/></g>
+      <circle cx="9" cy="7" r="2" fill="${c.luz}"/><circle cx="9" cy="27" r="2" fill="${c.luz}"/>
+      <line x1="20" y1="7" x2="36" y2="7" stroke="${c.hierro}" stroke-width="2"/><line x1="20" y1="27" x2="36" y2="27" stroke="${c.hierro}" stroke-width="2"/>`,
+};
+
+function bloqueConstruyo(c) {
+  const columnas = [
+    { icono: 'web', titulo: 'Aplicaciones web', texto: 'Para varias empresas a la vez, cada una con su propia base de datos y su propio dominio. Con Laravel y Filament.' },
+    { icono: 'api', titulo: 'Servicios y APIs', texto: 'Con .NET.' },
+    { icono: 'servidor', titulo: 'En producción', texto: 'Docker en servidor propio, HTTPS, copias de seguridad y despliegue automático desde GitHub.' },
+  ];
+  const hueco = 24, ancho = (ANCHO - 2 * hueco) / 3, alto = 214;
+  const tarjetas = columnas.map((col, i) => {
+    const x = i * (ancho + hueco);
+    const lineas = partir(col.texto, 32);
+    const texto = lineas.map((l, j) => `<text class="cuerpo" x="22" y="${132 + j * 22}">${esc(l)}</text>`).join('');
+    return `<g transform="translate(${x} 0)">
+    <rect x=".75" y=".75" width="${ancho - 1.5}" height="${alto - 1.5}" rx="5" fill="${c.cieloArriba}" stroke="${c.hierroSuave}" stroke-width="1.5"/>
+    <rect x="0" y="0" width="${ancho}" height="7" rx="3" fill="${c.hierro}"/>
+    <circle cx="${ancho - 20}" cy="3.5" r="2.2" fill="${c.luz}"/>
+    <g transform="translate(22 30)">${ICONOS[col.icono](c)}</g>
+    <text class="titulo" x="22" y="106">${esc(col.titulo)}</text>
+    ${texto}
+  </g>`;
+  }).join('\n  ');
+  return lienzo({
+    titulo: 'xabier@bilbao: ~/lo-que-construyo',
+    descripcion: 'Lo que construyo: aplicaciones web para varias empresas a la vez, con Laravel y Filament; servicios y APIs con .NET; y la puesta en producción con Docker en servidor propio, HTTPS, copias de seguridad y despliegue automático desde GitHub.',
+    alto,
+    estilos: `.titulo { font: 600 19px ${FUENTE}; fill: ${c.texto}; } .cuerpo { font: 400 15px ${FUENTE}; fill: ${c.textoSuave}; }`,
+    cuerpo: tarjetas,
+  }, c);
+}
+
+// Technologies: no box either. A truss rail above and below, the strip and the rows between.
 const CATEGORIAS = [
   ['Backend', 'PHP, Laravel, Filament, C#, .NET'],
   ['Datos', 'MariaDB, MySQL, Redis'],
@@ -358,55 +407,49 @@ const CATEGORIAS = [
 ];
 
 function bloqueTecnologias(c) {
-  const tira = desmontar(cinta(c, ANCHO - 2 * MARGEN));
-  const baseFilas = 78;
-  const filas = CATEGORIAS.map(([etiqueta, items], i) => `
-    <text class="etiqueta" x="${MARGEN}" y="${baseFilas + i * 30}">${esc(etiqueta)}</text>
-    <text class="texto" x="${MARGEN + 120}" y="${baseFilas + i * 30}">${esc(items)}</text>`).join('');
-  return enmarcar({
+  const tira = desmontar(cinta(c, ANCHO));
+  const filaBase = 138;
+  const filas = CATEGORIAS.map(([etq, items], i) => `
+  <text class="etiqueta" x="${MARGEN}" y="${filaBase + i * 30}">${esc(etq)}</text>
+  <text class="texto" x="${MARGEN + 120}" y="${filaBase + i * 30}">${esc(items)}</text>`).join('');
+  const alto = filaBase + CATEGORIAS.length * 30 + 4;
+  return lienzo({
     titulo: 'xabier@bilbao: ~/tecnologias',
     descripcion: 'Con qué trabajo. ' + CATEGORIAS.map(([e, i]) => `${e}: ${i}.`).join(' '),
-    alto: baseFilas + CATEGORIAS.length * 30 - 6,
-    // The scrolling strip keeps its own CSS; ids and class names do not clash with the frame.
+    alto,
     defs: tira.defs,
     estilos: `${tira.estilos}
     .texto { font: 400 17px ${FUENTE}; fill: ${c.texto}; }
     .etiqueta { font: 600 17px ${FUENTE}; fill: ${c.hierro}; }`,
-    cuerpo: `<g transform="translate(${MARGEN} 10)">${tira.dibujo}</g>${filas}`,
+    cuerpo: `${celosia(0, ANCHO, 2, c)}
+  ${etiqueta('xabier@bilbao: ~/tecnologias', MARGEN, 44, c)}
+  <g transform="translate(0 62)">${tira.dibujo}</g>
+  ${filas}
+  ${celosia(0, ANCHO, alto - 14, c)}`,
   }, c);
 }
 
 function bloqueBanner(nombre, c) {
   const escena = desmontar(banner(nombre, c));
-  const escala = ANCHO / W; // the 1200x360 drawing is shown at the frame's width
+  const escala = ANCHO / W; // the 1200x360 drawing is shown at the profile's width
+  const alto = Math.round(H * escala);
   return enmarcar({
     titulo: 'xabier@bilbao: ~',
     descripcion: 'Xabier, software de gestión a medida desde Bilbao. Ilustración del Puente Colgante de Bizkaia con una góndola que cruza la ría de un lado a otro.',
-    alto: Math.round(H * escala),
+    barra: false,
+    alto,
     defs: escena.defs,
     estilos: escena.estilos,
-    cuerpo: `<svg x="0" y="0" width="${ANCHO}" height="${Math.round(H * escala)}" viewBox="0 0 ${W} ${H}">${escena.dibujo}</svg>`,
+    cuerpo: `<svg x="0" y="0" width="${ANCHO}" height="${alto}" viewBox="0 0 ${W} ${H}">${escena.dibujo}</svg>`,
   }, c);
 }
 
 mkdirSync('assets', { recursive: true });
 const salida = {
   banner: (n, c) => bloqueBanner(n, c),
-  presentacion: (n, c) => bloqueTexto({
-    titulo: 'xabier@bilbao: ~/presentacion',
-    descripcion: 'Hago aplicaciones de gestión a medida para empresas, desde la base de datos hasta el servidor donde se ejecutan.',
-    parrafos: ['Hago aplicaciones de gestión a medida para empresas, desde la base de datos hasta el servidor donde se ejecutan.'],
-  }, c),
+  presentacion: (n, c) => bloquePresentacion(c),
   terminal: (n, c) => terminal(c),
-  construyo: (n, c) => bloqueTexto({
-    titulo: 'xabier@bilbao: ~/lo-que-construyo',
-    descripcion: 'Lo que construyo: aplicaciones web para varias empresas a la vez, con Laravel y Filament; servicios y APIs con .NET; y la puesta en producción con Docker en servidor propio.',
-    vinetas: [
-      'Aplicaciones web para varias empresas a la vez, cada una con su propia base de datos y su propio dominio, con Laravel y Filament.',
-      'Servicios y APIs con .NET.',
-      'La puesta en producción: Docker en servidor propio, HTTPS, copias de seguridad y despliegue automático desde GitHub.',
-    ],
-  }, c),
+  construyo: (n, c) => bloqueConstruyo(c),
   tecnologias: (n, c) => bloqueTecnologias(c),
 };
 

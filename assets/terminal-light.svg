@@ -5,7 +5,7 @@
     
   </defs>
   <style>
-    .marco-titulo { font: 500 13px 'Cascadia Mono', 'SF Mono', Consolas, Menlo, 'DejaVu Sans Mono', monospace; fill: #456375; }
+    .etq { font: 500 13px 'Cascadia Mono', 'SF Mono', Consolas, Menlo, 'DejaVu Sans Mono', monospace; fill: #456375; }
     
     .term { font: 500 16px 'Cascadia Mono', 'SF Mono', Consolas, Menlo, 'DejaVu Sans Mono', monospace; }
     .cursor { animation: cursor 1.05s steps(1) infinite; }
@@ -72,7 +72,7 @@
     <g class="cursorgrupo"><rect class="cursor" x="191.2" y="199" width="9" height="19" fill="#a8731a"/></g></g>
     <line x1="0" y1="44" x2="960" y2="44" stroke="#6b8a9d" stroke-width="1" opacity=".6"/>
   </g>
-  <circle cx="30" cy="22" r="4" fill="#a8731a"/>
-  <text class="marco-titulo" x="46" y="26.5">xabier@bilbao: ~/trabajo</text>
+  <circle cx="30" cy="22" r="3.6" fill="#a8731a"/>
+    <text class="etq" x="42" y="26.5">xabier@bilbao: ~/trabajo</text>
   <rect x=".75" y=".75" width="958.5" height="286.5" rx="12" fill="none" stroke="#6b8a9d" stroke-width="1.5"/>
 </svg>

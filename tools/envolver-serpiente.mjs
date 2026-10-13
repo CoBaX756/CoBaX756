@@ -1,8 +1,8 @@
-// Puts the contribution snake (an SVG made by the Platane/snk action) inside the same frame
-// as every other block of the profile.
+// Draws the contribution snake (an SVG made by the Platane/snk action) inside the profile's
+// own container for it: four corner marks, like the survey marks on a plan, and the lamp label.
 // Usage: node tools/envolver-serpiente.mjs <serpiente.svg> <salida.svg> <dark|light>
 import { readFileSync, writeFileSync } from 'node:fs';
-import { ANCHO, enmarcar, paletas } from './marco.mjs';
+import { ANCHO, esquinas, etiqueta, lienzo, paletas } from './marco.mjs';
 
 const [entrada, salida, tema] = process.argv.slice(2);
 const c = paletas[tema];
@@ -24,13 +24,16 @@ if (!raiz || !viewBox) {
 }
 
 const [, , w, h] = viewBox.split(/[ ,]+/).map(Number);
-const MARGEN = 28;
+const MARGEN = 32;
 const ancho = ANCHO - 2 * MARGEN;
 const alto = Math.round((h * ancho) / w);
+const total = 56 + alto + 28;
 
-writeFileSync(salida, enmarcar({
+writeFileSync(salida, lienzo({
   titulo: 'xabier@bilbao: ~/actividad',
   descripcion: 'Mis contribuciones del último año, recorridas por una serpiente.',
-  alto: alto + 32,
-  cuerpo: `<svg x="${MARGEN}" y="16" width="${ancho}" height="${alto}" viewBox="${viewBox}">${raiz[2]}</svg>`,
+  alto: total,
+  cuerpo: `${esquinas(ANCHO, total, c)}
+  ${etiqueta('xabier@bilbao: ~/actividad', MARGEN, 38, c)}
+  <svg x="${MARGEN}" y="56" width="${ancho}" height="${alto}" viewBox="${viewBox}">${raiz[2]}</svg>`,
 }, c));
