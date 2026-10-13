@@ -1,0 +1,162 @@
+// Generates the two profile banners (dark and light) from one drawing.
+// Subject: the Vizcaya Bridge (Puente Colgante) in Bizkaia, a transporter bridge whose gondola
+// carries people and vehicles across the ría. It is a bridge that *transports*, which is
+// what Xabier's software does for the companies he builds it for.
+import { writeFileSync, mkdirSync } from 'node:fs';
+
+const paletas = {
+  dark: {
+    cieloArriba: '#0b1720', cieloAbajo: '#17303f', agua: '#0a141b', ondas: '#21404f',
+    hierro: '#86a9c0', hierroSuave: '#4f7189', luz: '#e9c46a',
+    texto: '#e8f0f4', textoSuave: '#93b3c7', estrellas: '#cfe1ec',
+  },
+  light: {
+    cieloArriba: '#e9f1f5', cieloAbajo: '#d3e2ea', agua: '#b9cfda', ondas: '#9fbccb',
+    hierro: '#2d4a5e', hierroSuave: '#6b8a9d', luz: '#a8731a',
+    texto: '#0e1b24', textoSuave: '#456375', estrellas: '#ffffff',
+  },
+};
+
+const W = 1200, H = 360, AGUA = 292;
+const TORRE_IZQ = 560, TORRE_DER = 1020, VIGA_Y = 74, VIGA_ALTO = 14;
+
+// One lattice tower: two legs that lean in toward the top, cross braces between them.
+function torre(cx, c) {
+  const base = 74, arriba = 26; // half widths at the water and at the top
+  const y0 = AGUA, y1 = VIGA_Y - 14;
+  const alto = y0 - y1;
+  const lado = (y) => base - ((y0 - y) / alto) * (base - arriba);
+  const partes = [];
+  partes.push(`<line x1="${cx - base}" y1="${y0}" x2="${cx - arriba}" y2="${y1}"/>`);
+  partes.push(`<line x1="${cx + base}" y1="${y0}" x2="${cx + arriba}" y2="${y1}"/>`);
+  const peldanos = 7;
+  for (let i = 0; i <= peldanos; i++) {
+    const y = y0 - (alto / peldanos) * i;
+    const a = lado(y);
+    partes.push(`<line x1="${cx - a}" y1="${y}" x2="${cx + a}" y2="${y}"/>`);
+    if (i < peldanos) {
+      const yn = y0 - (alto / peldanos) * (i + 1);
+      const an = lado(yn);
+      partes.push(`<line x1="${cx - a}" y1="${y}" x2="${cx + an}" y2="${yn}" opacity=".55"/>`);
+      partes.push(`<line x1="${cx + a}" y1="${y}" x2="${cx - an}" y2="${yn}" opacity=".55"/>`);
+    }
+  }
+  return partes.join('');
+}
+
+function vigaCeloso(x1, x2, c) {
+  const partes = [];
+  partes.push(`<rect x="${x1}" y="${VIGA_Y}" width="${x2 - x1}" height="3" fill="${c.hierro}"/>`);
+  partes.push(`<rect x="${x1}" y="${VIGA_Y + VIGA_ALTO}" width="${x2 - x1}" height="3" fill="${c.hierro}"/>`);
+  const paso = 16;
+  for (let x = x1; x < x2; x += paso) {
+    const par = ((x - x1) / paso) % 2 === 0;
+    partes.push(`<line x1="${x}" y1="${par ? VIGA_Y : VIGA_Y + VIGA_ALTO}" x2="${x + paso}" y2="${par ? VIGA_Y + VIGA_ALTO : VIGA_Y}" stroke="${c.hierroSuave}" stroke-width="1.2"/>`);
+  }
+  return partes.join('');
+}
+
+// Stays from each tower top out to the deck, as on the real bridge.
+function tirantes(c) {
+  const lineas = [];
+  const alturaTorre = VIGA_Y - 14;
+  for (let i = 1; i <= 4; i++) {
+    const dx = i * 38;
+    lineas.push(`<line x1="${TORRE_IZQ - 26}" y1="${alturaTorre}" x2="${TORRE_IZQ - 26 - dx}" y2="${VIGA_Y + 3}"/>`);
+    lineas.push(`<line x1="${TORRE_DER + 26}" y1="${alturaTorre}" x2="${TORRE_DER + 26 + dx}" y2="${VIGA_Y + 3}"/>`);
+  }
+  return `<g stroke="${c.hierroSuave}" stroke-width="1" opacity=".7">${lineas.join('')}</g>`;
+}
+
+function estrellas(c) {
+  const puntos = [[60, 40], [150, 90], [240, 30], [330, 70], [410, 28], [470, 110], [520, 52], [700, 20], [830, 44], [980, 24], [1090, 40], [1160, 84], [1130, 150], [640, 130], [90, 160]];
+  return puntos.map(([x, y], i) => `<circle class="est e${i % 3}" cx="${x}" cy="${y}" r="${i % 4 === 0 ? 1.6 : 1.1}" fill="${c.estrellas}"/>`).join('');
+}
+
+function ondas(c) {
+  const filas = [];
+  for (let i = 0; i < 5; i++) {
+    const y = AGUA + 16 + i * 12;
+    let d = `M-80 ${y}`;
+    for (let x = -80; x < W + 160; x += 60) d += ` q15 -5 30 0 t30 0`;
+    filas.push(`<path class="onda o${i % 2}" d="${d}" fill="none" stroke="${c.ondas}" stroke-width="1.4" opacity="${0.85 - i * 0.12}"/>`);
+  }
+  return filas.join('');
+}
+
+function gondola(c) {
+  // Drawn with its centre at x=0 so a single translateX moves it along the deck.
+  const cx = 0, y = VIGA_Y + VIGA_ALTO + 3, plataformaY = 232;
+  return `
+  <g class="gondola" style="transform-box: fill-box">
+    <rect x="${cx - 12}" y="${y}" width="24" height="9" rx="2" fill="${c.hierro}"/>
+    <g stroke="${c.hierroSuave}" stroke-width="1.2">
+      <line x1="${cx - 30}" y1="${y + 9}" x2="${cx - 30}" y2="${plataformaY}"/>
+      <line x1="${cx - 10}" y1="${y + 9}" x2="${cx - 10}" y2="${plataformaY}"/>
+      <line x1="${cx + 10}" y1="${y + 9}" x2="${cx + 10}" y2="${plataformaY}"/>
+      <line x1="${cx + 30}" y1="${y + 9}" x2="${cx + 30}" y2="${plataformaY}"/>
+    </g>
+    <rect x="${cx - 36}" y="${plataformaY}" width="72" height="7" rx="1.5" fill="${c.hierro}"/>
+    <rect x="${cx - 28}" y="${plataformaY - 22}" width="56" height="22" rx="3" fill="none" stroke="${c.hierro}" stroke-width="1.4"/>
+    <rect x="${cx - 22}" y="${plataformaY - 17}" width="44" height="11" rx="1.5" fill="${c.luz}" class="luz"/>
+  </g>`;
+}
+
+function banner(nombre, c) {
+  const viajeIni = 0, viajeFin = TORRE_DER - TORRE_IZQ - 150; // how far the gondola travels
+  const inicioX = TORRE_IZQ + 75;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-labelledby="t d">
+  <title id="t">Xabier, desarrollo de software a medida desde Bilbao</title>
+  <desc id="d">Ilustración del Puente Colgante de Bizkaia: una góndola cruza la ría de un lado a otro colgada de la viga superior.</desc>
+  <defs>
+    <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${c.cieloArriba}"/>
+      <stop offset="1" stop-color="${c.cieloAbajo}"/>
+    </linearGradient>
+  </defs>
+  <style>
+    .nombre { font: 700 64px 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; fill: ${c.texto}; letter-spacing: -1px; }
+    .linea  { font: 400 24px 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; fill: ${c.texto}; }
+    .lugar  { font: 400 17px 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; fill: ${c.textoSuave}; }
+    .gondola { animation: cruzar 16s infinite; }
+    .luz { animation: parpadeo 4s ease-in-out infinite; }
+    .onda { animation: mecer 9s ease-in-out infinite alternate; }
+    .o1 { animation-duration: 11s; animation-direction: alternate-reverse; }
+    .est { animation: brillo 5s ease-in-out infinite; }
+    .e1 { animation-delay: 1.4s; } .e2 { animation-delay: 3s; }
+    @keyframes cruzar {
+      0%, 7%   { transform: translateX(${inicioX}px); animation-timing-function: cubic-bezier(.45, 0, .55, 1); }
+      46%, 54% { transform: translateX(${inicioX + viajeFin - viajeIni}px); animation-timing-function: cubic-bezier(.45, 0, .55, 1); }
+      93%, 100% { transform: translateX(${inicioX}px); }
+    }
+    @keyframes parpadeo { 0%, 100% { opacity: 1; } 50% { opacity: .65; } }
+    @keyframes mecer { from { transform: translateX(0); } to { transform: translateX(-60px); } }
+    @keyframes brillo { 0%, 100% { opacity: .9; } 50% { opacity: .25; } }
+    @media (prefers-reduced-motion: reduce) {
+      .gondola, .luz, .onda, .est { animation: none; }
+      .gondola { transform: translateX(${inicioX + 200}px); }
+    }
+  </style>
+
+  <rect width="${W}" height="${AGUA}" fill="url(#cielo)"/>
+  ${estrellas(c)}
+  <rect y="${AGUA}" width="${W}" height="${H - AGUA}" fill="${c.agua}"/>
+  ${ondas(c)}
+
+  <g stroke="${c.hierro}" stroke-width="2.2" fill="none">${torre(TORRE_IZQ, c)}${torre(TORRE_DER, c)}</g>
+  ${tirantes(c)}
+  ${vigaCeloso(TORRE_IZQ - 26 - 4 * 38, TORRE_DER + 26 + 4 * 38, c)}
+  ${gondola(c)}
+
+  <text class="nombre" x="64" y="168">Xabier</text>
+  <text class="linea" x="66" y="212">Software de gestión a medida</text>
+  <text class="lugar" x="66" y="246">Bilbao, en Raxtech</text>
+</svg>
+`;
+}
+
+mkdirSync('assets', { recursive: true }); // run from the repo root: node tools/generar-banner.mjs
+for (const [nombre, c] of Object.entries(paletas)) {
+  writeFileSync(`assets/banner-${nombre}.svg`, banner(nombre, c));
+}
+console.log('listo: assets/banner-dark.svg y assets/banner-light.svg');

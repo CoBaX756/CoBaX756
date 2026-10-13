@@ -1,0 +1,42 @@
+name: Serpiente de contribuciones
+
+# Draws the contribution graph as an animated snake and publishes the two SVGs on the
+# "output" branch, which the README points to. Runs by hand, on every push to main
+# and once a day.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  serpiente:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generar la serpiente
+        uses: Platane/snk/svg-only@v3
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            dist/snake.svg
+            dist/snake-dark.svg?palette=github-dark
+
+      - name: Publicar en la rama output
+        run: |
+          mkdir -p "$RUNNER_TEMP/snake"
+          cp dist/*.svg "$RUNNER_TEMP/snake/"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan output
+          git rm -rf --quiet .
+          cp "$RUNNER_TEMP"/snake/*.svg .
+          git add ./*.svg
+          git commit --quiet -m "Actualizar la serpiente"
+          git push --force origin output
