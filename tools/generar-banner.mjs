@@ -4,7 +4,7 @@
 // Subject of the banner: the Vizcaya Bridge (Puente Colgante) in Bizkaia, a transporter bridge
 // whose gondola carries people and vehicles across the ría. It is a bridge that *transports*,
 // which is what Xabier's software does for the companies he builds it for.
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { ANCHO, FUENTE, MONO, celosia, desmontar, enmarcar, esc, etiqueta, lienzo, paletas, partir } from './marco.mjs';
 
 const W = 1200, H = 360, AGUA = 292;
@@ -120,13 +120,13 @@ function gaviotas(c) {
   return ave("v1", 56, 1.5) + ave("v2", 118, 1.15) + ave("v3", 30, 0.95);
 }
 
-// Moon at night, sun by day, with a slow glow and a flicker of its reflection on the water.
-function astro(esOscuro, c) {
-  const x = 880, y = 40;
-  const reflejo = [0, 1, 2, 3].map((i) => `<rect class="reflejo r${i}" x="${x - 18 + i * 3}" y="${AGUA + 10 + i * 14}" width="${36 - i * 6}" height="2" rx="1" fill="${c.luz}"/>`).join('');
-  return `<circle class="halo" cx="${x}" cy="${y}" r="46" fill="url(#brillo)"/>
-  <circle cx="${x}" cy="${y}" r="${esOscuro ? 13 : 15}" fill="${c.luz}"/>
-  ${esOscuro ? `<circle cx="${x + 5}" cy="${y - 3}" r="11" fill="${c.cieloArriba}"/>` : ''}
+// A low sun setting into the ría between the two towers, with a slow glow and its
+// reflection flickering on the water. It is drawn before the water, which hides its lower half.
+function astro(c) {
+  const x = 790, y = 286;
+  const reflejo = [0, 1, 2, 3, 4].map((i) => `<rect class="reflejo r${i % 4}" x="${x - 34 + i * 4}" y="${AGUA + 8 + i * 12}" width="${68 - i * 8}" height="3" rx="1.5" fill="${c.naranja}"/>`).join('');
+  return `<circle class="halo" cx="${x}" cy="${y}" r="120" fill="url(#brillo)"/>
+  <circle cx="${x}" cy="${y}" r="34" fill="${c.luz}"/>
   ${reflejo}`;
 }
 
@@ -139,17 +139,22 @@ function banner(nombre, c) {
   <defs>
     <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="${c.cieloArriba}"/>
-      <stop offset="1" stop-color="${c.cieloAbajo}"/>
+      <stop offset=".58" stop-color="${c.cieloMedio}"/>
+      <stop offset="1" stop-color="${c.horizonte}"/>
     </linearGradient>
     <radialGradient id="brillo">
-      <stop offset="0" stop-color="${c.luz}" stop-opacity=".38"/>
-      <stop offset="1" stop-color="${c.luz}" stop-opacity="0"/>
+      <stop offset="0" stop-color="${c.naranja}" stop-opacity=".55"/>
+      <stop offset="1" stop-color="${c.naranja}" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="rio" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${c.naranja}" stop-opacity=".35"/>
+      <stop offset="1" stop-color="${c.agua}" stop-opacity="0"/>
+    </linearGradient>
   </defs>
   <style>
     .nombre { font: 700 64px 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; fill: ${c.texto}; letter-spacing: -1px; }
     .linea  { font: 400 24px 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; fill: ${c.texto}; }
-    .lugar  { font: 400 17px 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; fill: ${c.textoSuave}; }
+    .lugar  { font: 400 17px 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; fill: ${c.texto}; opacity: .85; }
     .gondola { animation: cruzar 16s infinite; }
     .luz { animation: parpadeo 4s ease-in-out infinite; }
     .onda { animation: mecer 9s ease-in-out infinite alternate; }
@@ -202,9 +207,10 @@ function banner(nombre, c) {
 
   <rect width="${W}" height="${AGUA}" fill="url(#cielo)"/>
   ${estrellas(c)}
-  ${astro(nombre === 'dark', c)}
+  ${astro(c)}
   ${gaviotas(c)}
   <rect y="${AGUA}" width="${W}" height="${H - AGUA}" fill="${c.agua}"/>
+  <rect y="${AGUA}" width="${W}" height="${H - AGUA}" fill="url(#rio)"/>
   ${ondas(c)}
   ${barcos(c)}
 
@@ -223,37 +229,62 @@ function banner(nombre, c) {
 `;
 }
 
-// A strip of technology names that scrolls sideways forever, fading out at both ends.
-const TECNOLOGIAS = ['PHP', 'Laravel', 'Filament', 'C#', '.NET', 'MariaDB', 'MySQL', 'Redis', 'Livewire', 'Alpine.js', 'Tailwind CSS', 'Docker', 'Coolify', 'Linux', 'GitHub Actions'];
+// A strip of technology tiles, each with the real logo in its own brand colour, that scrolls
+// sideways forever and fades out at both ends. The logos are the Simple Icons set (CC0),
+// kept as files in tools/iconos so nothing is requested from anywhere when the profile loads.
+const TECNOLOGIAS = [
+  { n: 'PHP', s: 'php', claro: '#777bb4', oscuro: '#b4b8f2' },
+  { n: 'Laravel', s: 'laravel', claro: '#ff2d20', oscuro: '#ff5a4e' },
+  { n: 'Filament', s: 'filament', claro: '#e89a1f', oscuro: '#fdae4b' },
+  { n: 'C#', s: 'csharp', claro: '#9b4f96', oscuro: '#c77bc2' },
+  { n: '.NET', s: 'dotnet', claro: '#512bd4', oscuro: '#8d6bff' },
+  { n: 'MariaDB', s: 'mariadb', claro: '#0f6e8c', oscuro: '#5bc0d6' },
+  { n: 'MySQL', s: 'mysql', claro: '#4479a1', oscuro: '#6fa3c9' },
+  { n: 'Redis', s: 'redis', claro: '#ff4438', oscuro: '#ff4438' },
+  { n: 'Livewire', s: 'livewire', claro: '#4e56a6', oscuro: '#8991e8' },
+  { n: 'Alpine.js', s: 'alpinedotjs', claro: '#3f97ae', oscuro: '#8bc0d0' },
+  { n: 'Tailwind CSS', s: 'tailwindcss', claro: '#0891b2', oscuro: '#06b6d4' },
+  { n: 'Docker', s: 'docker', claro: '#2496ed', oscuro: '#2496ed' },
+  { n: 'Coolify', s: 'coolify', claro: '#6b16ed', oscuro: '#a66bff' },
+  { n: 'Linux', s: 'linux', claro: '#d4a100', oscuro: '#fcc624' },
+  { n: 'GitHub Actions', s: 'githubactions', claro: '#2088ff', oscuro: '#2088ff' },
+];
 
-function cinta(c, W = ANCHO - 56) {
-  const alto = 52, hueco = 12, anchoCar = 8.6;
-  const pastillas = [];
+const trazoIcono = (slug) => readFileSync(new URL(`./iconos/${slug}.svg`, import.meta.url), 'utf8').match(/<path d="([^"]+)"/)[1];
+
+function cinta(c, tema, W = ANCHO) {
+  const alto = 92, hueco = 10;
+  const fichas = [];
   let x = 0;
   for (const t of TECNOLOGIAS) {
-    const ancho = Math.round(t.length * anchoCar + 34);
-    pastillas.push(`<g transform="translate(${x} 8)"><rect width="${ancho}" height="34" rx="17" fill="none" stroke="${c.hierroSuave}" stroke-width="1.4"/><text class="pastilla" x="${ancho / 2}" y="22.5" text-anchor="middle">${t}</text></g>`);
+    const color = tema === 'dark' ? t.oscuro : t.claro;
+    const ancho = Math.max(72, Math.round(t.n.length * 7.6 + 18));
+    fichas.push(`<g transform="translate(${x} 4)">
+      <rect x="${ancho / 2 - 28}" y="0" width="56" height="56" rx="15" fill="${color}" fill-opacity=".24" stroke="${color}" stroke-opacity=".75" stroke-width="1.4"/>
+      <g transform="translate(${ancho / 2 - 15} 13) scale(1.25)" fill="${color}"><path d="${trazoIcono(t.s)}"/></g>
+      <text class="nom" x="${ancho / 2}" y="76" text-anchor="middle">${esc(t.n)}</text>
+    </g>`);
     x += ancho + hueco;
   }
   const largo = x; // one full set; the second copy follows it so the loop has no seam
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${alto}" width="${W}" height="${alto}" role="img" aria-label="Tecnologías: ${TECNOLOGIAS.join(', ')}">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${alto}" width="${W}" height="${alto}" role="img" aria-label="Tecnologías: ${TECNOLOGIAS.map((t) => t.n).join(', ')}">
   <defs>
     <linearGradient id="borde" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#fff" stop-opacity="0"/>
-      <stop offset=".08" stop-color="#fff" stop-opacity="1"/>
-      <stop offset=".92" stop-color="#fff" stop-opacity="1"/>
+      <stop offset=".07" stop-color="#fff" stop-opacity="1"/>
+      <stop offset=".93" stop-color="#fff" stop-opacity="1"/>
       <stop offset="1" stop-color="#fff" stop-opacity="0"/>
     </linearGradient>
     <mask id="m"><rect width="${W}" height="${alto}" fill="url(#borde)"/></mask>
   </defs>
   <style>
-    .pastilla { font: 500 15px ${FUENTE}; fill: ${c.texto}; }
-    .cinta { animation: desfilar 48s linear infinite; }
+    .nom { font: 500 13px ${FUENTE}; fill: ${c.textoSuave}; }
+    .cinta { animation: desfilar 60s linear infinite; }
     @keyframes desfilar { from { transform: translateX(0); } to { transform: translateX(-${largo}px); } }
     @media (prefers-reduced-motion: reduce) { .cinta { animation: none; } }
   </style>
   <g mask="url(#m)">
-    <g class="cinta">${pastillas.join('')}<g transform="translate(${largo} 0)">${pastillas.join('')}</g></g>
+    <g class="cinta">${fichas.join('')}<g transform="translate(${largo} 0)">${fichas.join('')}</g></g>
   </g>
 </svg>
 `;
@@ -294,13 +325,13 @@ function terminal(c) {
     }`).join('');
   const lineas = bloques.map((b, i) => {
     const contenido = b.prompt
-      ? `<tspan fill="${c.luz}">$</tspan><tspan fill="${c.texto}"> ${b.texto.slice(2)}</tspan>`
-      : `<tspan fill="${b.ok ? c.hierro : c.texto}">${b.texto}</tspan>`;
+      ? `<tspan fill="${c.verde}">$</tspan><tspan fill="${c.texto}"> ${b.texto.slice(2)}</tspan>`
+      : `<tspan fill="${b.ok ? c.verde : c.texto}">${b.texto}</tspan>`;
     return `<clipPath id="c${i}"><rect class="tipo${i}" x="${margen}" y="${b.y - 20}" width="0" height="28"/></clipPath>
     <text class="term" clip-path="url(#c${i})" x="${margen}" y="${b.y}" textLength="${b.n * anchoCar}" lengthAdjust="spacingAndGlyphs" xml:space="preserve">${contenido}</text>`;
   }).join('\n    ');
   const alto = filaY + LINEAS_TERMINAL.length * paso - 4;
-  const cursor = `<g class="cursorgrupo"><rect class="cursor" x="${margen + LINEAS_TERMINAL.at(-1).texto.length * anchoCar + 8}" y="${filaY + (LINEAS_TERMINAL.length - 1) * paso - 15}" width="9" height="19" fill="${c.luz}"/></g>`;
+  const cursor = `<g class="cursorgrupo"><rect class="cursor" x="${margen + LINEAS_TERMINAL.at(-1).texto.length * anchoCar + 8}" y="${filaY + (LINEAS_TERMINAL.length - 1) * paso - 15}" width="9" height="19" fill="${c.verde}"/></g>`;
   return enmarcar({
     titulo: 'xabier@bilbao: ~/trabajo',
     descripcion: 'Terminal con tres comandos: whoami, que responde Xabier, software de gestión a medida en Bilbao; ls aplicaciones, con multiempresa, apis y produccion; y docker compose up, con todo en marcha.',
@@ -346,9 +377,9 @@ function bloquePresentacion(c) {
     alto,
     estilos: `.grande { font: 400 22px ${FUENTE}; fill: ${c.texto}; }`,
     cuerpo: `<rect width="${ANCHO}" height="${alto}" rx="6" fill="${c.cieloArriba}"/>
-  <g stroke="${c.hierroSuave}" stroke-width="1.2">${celosiaLateral.join('')}</g>
-  <line x1="8" y1="0" x2="8" y2="${alto}" stroke="${c.hierro}" stroke-width="2"/>
-  <line x1="22" y1="0" x2="22" y2="${alto}" stroke="${c.hierro}" stroke-width="2"/>
+  <g stroke="${c.naranja}" stroke-width="1.3" opacity=".75">${celosiaLateral.join('')}</g>
+  <line x1="8" y1="0" x2="8" y2="${alto}" stroke="${c.naranja}" stroke-width="2.6"/>
+  <line x1="22" y1="0" x2="22" y2="${alto}" stroke="${c.naranja}" stroke-width="2.6"/>
   ${etiqueta('xabier@bilbao: ~/presentacion', 56, 34, c)}
   ${trazos}`,
   }, c);
@@ -356,17 +387,17 @@ function bloquePresentacion(c) {
 
 // What he builds: three pillars side by side, each with a deck beam on top and a small drawing.
 const ICONOS = {
-  web: (c) => `<g stroke="${c.hierro}" stroke-width="2" fill="none" stroke-linejoin="round">
+  web: (c, k) => `<g stroke="${k}" stroke-width="2" fill="none" stroke-linejoin="round">
       <rect x="0" y="0" width="44" height="34" rx="4"/><line x1="0" y1="9" x2="44" y2="9"/>
-      <circle cx="6" cy="4.5" r="1" fill="${c.hierro}"/><circle cx="11" cy="4.5" r="1" fill="${c.hierro}"/>
+      <circle cx="6" cy="4.5" r="1" fill="${k}"/><circle cx="11" cy="4.5" r="1" fill="${k}"/>
       <line x1="8" y1="18" x2="26" y2="18"/><line x1="8" y1="25" x2="36" y2="25"/></g>`,
-  api: (c) => `<g stroke="${c.hierro}" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  api: (c, k) => `<g stroke="${k}" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
       <path d="M13 2 C6 2 8 14 2 17 C8 20 6 32 13 32"/><path d="M31 2 C38 2 36 14 42 17 C36 20 38 32 31 32"/></g>
       <circle cx="22" cy="17" r="2.6" fill="${c.luz}"/>`,
-  servidor: (c) => `<g stroke="${c.hierro}" stroke-width="2" fill="none" stroke-linejoin="round">
+  servidor: (c, k) => `<g stroke="${k}" stroke-width="2" fill="none" stroke-linejoin="round">
       <rect x="0" y="0" width="44" height="14" rx="3"/><rect x="0" y="20" width="44" height="14" rx="3"/></g>
       <circle cx="9" cy="7" r="2" fill="${c.luz}"/><circle cx="9" cy="27" r="2" fill="${c.luz}"/>
-      <line x1="20" y1="7" x2="36" y2="7" stroke="${c.hierro}" stroke-width="2"/><line x1="20" y1="27" x2="36" y2="27" stroke="${c.hierro}" stroke-width="2"/>`,
+      <line x1="20" y1="7" x2="36" y2="7" stroke="${k}" stroke-width="2"/><line x1="20" y1="27" x2="36" y2="27" stroke="${k}" stroke-width="2"/>`,
 };
 
 function bloqueConstruyo(c) {
@@ -376,15 +407,17 @@ function bloqueConstruyo(c) {
     { icono: 'servidor', titulo: 'En producción', texto: 'Docker en servidor propio, HTTPS, copias de seguridad y despliegue automático desde GitHub.' },
   ];
   const hueco = 24, ancho = (ANCHO - 2 * hueco) / 3, alto = 214;
+  const acentos = [c.naranja, c.verde, c.violeta];
   const tarjetas = columnas.map((col, i) => {
     const x = i * (ancho + hueco);
     const lineas = partir(col.texto, 32);
+    const k = acentos[i];
     const texto = lineas.map((l, j) => `<text class="cuerpo" x="22" y="${132 + j * 22}">${esc(l)}</text>`).join('');
     return `<g transform="translate(${x} 0)">
-    <rect x=".75" y=".75" width="${ancho - 1.5}" height="${alto - 1.5}" rx="5" fill="${c.cieloArriba}" stroke="${c.hierroSuave}" stroke-width="1.5"/>
-    <rect x="0" y="0" width="${ancho}" height="7" rx="3" fill="${c.hierro}"/>
+    <rect x=".75" y=".75" width="${ancho - 1.5}" height="${alto - 1.5}" rx="5" fill="${c.cieloArriba}" stroke="${k}" stroke-opacity=".55" stroke-width="1.5"/>
+    <rect x="0" y="0" width="${ancho}" height="7" rx="3" fill="${k}"/>
     <circle cx="${ancho - 20}" cy="3.5" r="2.2" fill="${c.luz}"/>
-    <g transform="translate(22 30)">${ICONOS[col.icono](c)}</g>
+    <g transform="translate(22 30)">${ICONOS[col.icono](c, k)}</g>
     <text class="titulo" x="22" y="106">${esc(col.titulo)}</text>
     ${texto}
   </g>`;
@@ -406,11 +439,12 @@ const CATEGORIAS = [
   ['Servidores', 'Linux, Docker, Coolify, GitHub Actions'],
 ];
 
-function bloqueTecnologias(c) {
-  const tira = desmontar(cinta(c, ANCHO));
-  const filaBase = 138;
+function bloqueTecnologias(nombre, c) {
+  const tira = desmontar(cinta(c, nombre, ANCHO));
+  const filaBase = 190;
+  const acentos = [c.naranja, c.verde, c.violeta, c.rosa];
   const filas = CATEGORIAS.map(([etq, items], i) => `
-  <text class="etiqueta" x="${MARGEN}" y="${filaBase + i * 30}">${esc(etq)}</text>
+  <text class="etiqueta" x="${MARGEN}" y="${filaBase + i * 30}" fill="${acentos[i]}">${esc(etq)}</text>
   <text class="texto" x="${MARGEN + 120}" y="${filaBase + i * 30}">${esc(items)}</text>`).join('');
   const alto = filaBase + CATEGORIAS.length * 30 + 4;
   return lienzo({
@@ -420,12 +454,12 @@ function bloqueTecnologias(c) {
     defs: tira.defs,
     estilos: `${tira.estilos}
     .texto { font: 400 17px ${FUENTE}; fill: ${c.texto}; }
-    .etiqueta { font: 600 17px ${FUENTE}; fill: ${c.hierro}; }`,
-    cuerpo: `${celosia(0, ANCHO, 2, c)}
+    .etiqueta { font: 700 17px ${FUENTE}; }`,
+    cuerpo: `${celosia(0, ANCHO, 2, c, 12, 14, c.violeta)}
   ${etiqueta('xabier@bilbao: ~/tecnologias', MARGEN, 44, c)}
   <g transform="translate(0 62)">${tira.dibujo}</g>
   ${filas}
-  ${celosia(0, ANCHO, alto - 14, c)}`,
+  ${celosia(0, ANCHO, alto - 14, c, 12, 14, c.violeta)}`,
   }, c);
 }
 
@@ -450,7 +484,7 @@ const salida = {
   presentacion: (n, c) => bloquePresentacion(c),
   terminal: (n, c) => terminal(c),
   construyo: (n, c) => bloqueConstruyo(c),
-  tecnologias: (n, c) => bloqueTecnologias(c),
+  tecnologias: (n, c) => bloqueTecnologias(n, c),
 };
 
 for (const [nombre, c] of Object.entries(paletas)) {

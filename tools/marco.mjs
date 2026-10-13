@@ -6,15 +6,21 @@ export const ANCHO = 960;
 export const BARRA = 44;
 
 export const paletas = {
+  // Dusk over the ría: an aubergine ink, a cream text and four accents taken from Bilbao's
+  // iron and water (red-lead orange, ría green, violet, rose). Each block leans on one of them.
   dark: {
-    cieloArriba: '#0b1720', cieloAbajo: '#17303f', agua: '#0a141b', ondas: '#21404f',
-    hierro: '#86a9c0', hierroSuave: '#4f7189', luz: '#e9c46a',
-    texto: '#e8f0f4', textoSuave: '#93b3c7', estrellas: '#cfe1ec',
+    cieloArriba: '#15111f', cieloMedio: '#4a2068', horizonte: '#ff7a3d', cieloAbajo: '#4a2068',
+    agua: '#1c1226', ondas: '#8a4a6a',
+    hierro: '#ece4f7', hierroSuave: '#7d6f9b', luz: '#ffc857',
+    texto: '#f6f1e7', textoSuave: '#b9aed0', estrellas: '#ffe9c7',
+    naranja: '#ff7a3d', verde: '#2ec4a6', violeta: '#a58bff', rosa: '#ff5c8a',
   },
   light: {
-    cieloArriba: '#e9f1f5', cieloAbajo: '#d3e2ea', agua: '#b9cfda', ondas: '#9fbccb',
-    hierro: '#2d4a5e', hierroSuave: '#6b8a9d', luz: '#a8731a',
-    texto: '#0e1b24', textoSuave: '#456375', estrellas: '#ffffff',
+    cieloArriba: '#fff4e2', cieloMedio: '#ffd9a8', horizonte: '#ffa35c', cieloAbajo: '#ffd9a8',
+    agua: '#8fd8cc', ondas: '#3fae9f',
+    hierro: '#2b2340', hierroSuave: '#8c7fa8', luz: '#f59e0b',
+    texto: '#1f1a2b', textoSuave: '#5c5273', estrellas: '#ffffff',
+    naranja: '#e4570f', verde: '#0e9f83', violeta: '#6d3fd1', rosa: '#d1305e',
   },
 };
 
@@ -51,24 +57,24 @@ export function etiqueta(texto, x, y, c) {
 export const estiloEtiqueta = (c) => `.etq { font: 500 13px ${MONO}; fill: ${c.textoSuave}; }`;
 
 /** A strip of girder: two rails with the zigzag of a truss between them, like the bridge deck. */
-export function celosia(x1, x2, y, c, alto = 12, paso = 14) {
+export function celosia(x1, x2, y, c, alto = 12, paso = 14, rail = c.hierro) {
   const zigzag = [];
   for (let x = x1, i = 0; x < x2; x += paso, i++) {
     const fin = Math.min(x + paso, x2);
     zigzag.push(`<line x1="${x}" y1="${i % 2 ? y + alto : y}" x2="${fin}" y2="${i % 2 ? y : y + alto}"/>`);
   }
   return `<g stroke="${c.hierroSuave}" stroke-width="1.2" fill="none">
-    <line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c.hierro}" stroke-width="2"/>
-    <line x1="${x1}" y1="${y + alto}" x2="${x2}" y2="${y + alto}" stroke="${c.hierro}" stroke-width="2"/>
+    <line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${rail}" stroke-width="2.4"/>
+    <line x1="${x1}" y1="${y + alto}" x2="${x2}" y2="${y + alto}" stroke="${rail}" stroke-width="2.4"/>
     ${zigzag.join('')}
   </g>`;
 }
 
 /** Four corner marks instead of a full border, like the survey marks on a plan. */
-export function esquinas(ancho, alto, c, largo = 26, grosor = 2.2) {
+export function esquinas(ancho, alto, c, largo = 26, grosor = 2.6, color = c.hierro) {
   const m = 1.5;
   const l = largo;
-  return `<g stroke="${c.hierro}" stroke-width="${grosor}" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  return `<g stroke="${color}" stroke-width="${grosor}" fill="none" stroke-linecap="round" stroke-linejoin="round">
     <path d="M${m} ${m + l} V${m} H${m + l}"/>
     <path d="M${ancho - m - l} ${m} H${ancho - m} V${m + l}"/>
     <path d="M${m} ${alto - m - l} V${alto - m} H${m + l}"/>

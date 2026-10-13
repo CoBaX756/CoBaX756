@@ -5,7 +5,7 @@
     
   </defs>
   <style>
-    .etq { font: 500 13px 'Cascadia Mono', 'SF Mono', Consolas, Menlo, 'DejaVu Sans Mono', monospace; fill: #456375; }
+    .etq { font: 500 13px 'Cascadia Mono', 'SF Mono', Consolas, Menlo, 'DejaVu Sans Mono', monospace; fill: #5c5273; }
     
     .term { font: 500 16px 'Cascadia Mono', 'SF Mono', Consolas, Menlo, 'DejaVu Sans Mono', monospace; }
     .cursor { animation: cursor 1.05s steps(1) infinite; }
@@ -56,23 +56,23 @@
     }
   </style>
   <g clip-path="url(#marco)">
-    <rect width="960" height="288" fill="#e9f1f5"/>
+    <rect width="960" height="288" fill="#fff4e2"/>
     <g transform="translate(0 44)"><clipPath id="c0"><rect class="tipo0" x="28" y="24" width="0" height="28"/></clipPath>
-    <text class="term" clip-path="url(#c0)" x="28" y="44" textLength="77.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#a8731a">$</tspan><tspan fill="#0e1b24"> whoami</tspan></text>
+    <text class="term" clip-path="url(#c0)" x="28" y="44" textLength="77.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#0e9f83">$</tspan><tspan fill="#1f1a2b"> whoami</tspan></text>
     <clipPath id="c1"><rect class="tipo1" x="28" y="58" width="0" height="28"/></clipPath>
-    <text class="term" clip-path="url(#c1)" x="28" y="78" textLength="446.2" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#0e1b24">Xabier, software de gestión a medida en Bilbao</tspan></text>
+    <text class="term" clip-path="url(#c1)" x="28" y="78" textLength="446.2" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#1f1a2b">Xabier, software de gestión a medida en Bilbao</tspan></text>
     <clipPath id="c2"><rect class="tipo2" x="28" y="92" width="0" height="28"/></clipPath>
-    <text class="term" clip-path="url(#c2)" x="28" y="112" textLength="174.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#a8731a">$</tspan><tspan fill="#0e1b24"> ls aplicaciones/</tspan></text>
+    <text class="term" clip-path="url(#c2)" x="28" y="112" textLength="174.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#0e9f83">$</tspan><tspan fill="#1f1a2b"> ls aplicaciones/</tspan></text>
     <clipPath id="c3"><rect class="tipo3" x="28" y="126" width="0" height="28"/></clipPath>
-    <text class="term" clip-path="url(#c3)" x="28" y="146" textLength="339.5" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#0e1b24">multiempresa/   apis/   produccion/</tspan></text>
+    <text class="term" clip-path="url(#c3)" x="28" y="146" textLength="339.5" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#1f1a2b">multiempresa/   apis/   produccion/</tspan></text>
     <clipPath id="c4"><rect class="tipo4" x="28" y="160" width="0" height="28"/></clipPath>
-    <text class="term" clip-path="url(#c4)" x="28" y="180" textLength="213.39999999999998" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#a8731a">$</tspan><tspan fill="#0e1b24"> docker compose up -d</tspan></text>
+    <text class="term" clip-path="url(#c4)" x="28" y="180" textLength="213.39999999999998" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#0e9f83">$</tspan><tspan fill="#1f1a2b"> docker compose up -d</tspan></text>
     <clipPath id="c5"><rect class="tipo5" x="28" y="194" width="0" height="28"/></clipPath>
-    <text class="term" clip-path="url(#c5)" x="28" y="214" textLength="155.2" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#2d4a5e">✔ todo en marcha</tspan></text>
-    <g class="cursorgrupo"><rect class="cursor" x="191.2" y="199" width="9" height="19" fill="#a8731a"/></g></g>
-    <line x1="0" y1="44" x2="960" y2="44" stroke="#6b8a9d" stroke-width="1" opacity=".6"/>
+    <text class="term" clip-path="url(#c5)" x="28" y="214" textLength="155.2" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#0e9f83">✔ todo en marcha</tspan></text>
+    <g class="cursorgrupo"><rect class="cursor" x="191.2" y="199" width="9" height="19" fill="#0e9f83"/></g></g>
+    <line x1="0" y1="44" x2="960" y2="44" stroke="#8c7fa8" stroke-width="1" opacity=".6"/>
   </g>
-  <circle cx="30" cy="22" r="3.6" fill="#a8731a"/>
+  <circle cx="30" cy="22" r="3.6" fill="#f59e0b"/>
     <text class="etq" x="42" y="26.5">xabier@bilbao: ~/trabajo</text>
-  <rect x=".75" y=".75" width="958.5" height="286.5" rx="12" fill="none" stroke="#6b8a9d" stroke-width="1.5"/>
+  <rect x=".75" y=".75" width="958.5" height="286.5" rx="12" fill="none" stroke="#8c7fa8" stroke-width="1.5"/>
 </svg>

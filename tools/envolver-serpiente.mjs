@@ -33,7 +33,7 @@ writeFileSync(salida, lienzo({
   titulo: 'xabier@bilbao: ~/actividad',
   descripcion: 'Mis contribuciones del último año, recorridas por una serpiente.',
   alto: total,
-  cuerpo: `${esquinas(ANCHO, total, c)}
+  cuerpo: `${esquinas(ANCHO, total, c, 26, 2.6, c.rosa)}
   ${etiqueta('xabier@bilbao: ~/actividad', MARGEN, 38, c)}
   <svg x="${MARGEN}" y="56" width="${ancho}" height="${alto}" viewBox="${viewBox}">${raiz[2]}</svg>`,
 }, c));
