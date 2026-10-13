@@ -102,6 +102,42 @@ function gondola(c) {
   </g>`;
 }
 
+// Red-and-amber warning lights on top of each tower, blinking out of step with each other.
+function balizas(c) {
+  const y = VIGA_Y - 18;
+  return `<circle class="baliza" cx="${TORRE_IZQ}" cy="${y}" r="3.2" fill="${c.luz}"/>
+  <circle class="baliza b2" cx="${TORRE_DER}" cy="${y}" r="3.2" fill="${c.luz}"/>`;
+}
+
+// Two boats going up and down the ría at different speeds, the far one smaller and fainter.
+function barcos(c) {
+  const casco = (escala, opacidad, clase, y) => `<g class="barco ${clase}" opacity="${opacidad}">
+    <g transform="translate(0 ${y}) scale(${escala})">
+      <path d="M-34 0 L34 0 L26 11 L-26 11 Z" fill="${c.hierro}"/>
+      <rect x="-10" y="-13" width="20" height="13" fill="${c.hierroSuave}"/>
+      <rect x="-5" y="-22" width="4" height="9" fill="${c.hierro}"/>
+      <rect x="-8" y="-9" width="6" height="4" fill="${c.luz}" opacity=".9"/>
+    </g>
+  </g>`;
+  return casco(1, 0.95, 'barco1', AGUA + 6) + casco(0.62, 0.55, 'barco2', AGUA + 30);
+}
+
+// Gulls: a "V" that flaps while it crosses the sky.
+function gaviotas(c) {
+  const ave = (clase, y, escala) => `<g class="vuelo ${clase}"><g transform="translate(0 ${y}) scale(${escala})"><path class="ala" d="M-12 0 Q-6 -7 0 0 Q6 -7 12 0" fill="none" stroke="${c.texto}" stroke-width="2" stroke-linecap="round" opacity=".8"/></g></g>`;
+  return ave("v1", 56, 1.5) + ave("v2", 118, 1.15) + ave("v3", 30, 0.95);
+}
+
+// Moon at night, sun by day, with a slow glow and a flicker of its reflection on the water.
+function astro(esOscuro, c) {
+  const x = 880, y = 40;
+  const reflejo = [0, 1, 2, 3].map((i) => `<rect class="reflejo r${i}" x="${x - 18 + i * 3}" y="${AGUA + 10 + i * 14}" width="${36 - i * 6}" height="2" rx="1" fill="${c.luz}"/>`).join('');
+  return `<circle class="halo" cx="${x}" cy="${y}" r="46" fill="url(#brillo)"/>
+  <circle cx="${x}" cy="${y}" r="${esOscuro ? 13 : 15}" fill="${c.luz}"/>
+  ${esOscuro ? `<circle cx="${x + 5}" cy="${y - 3}" r="11" fill="${c.cieloArriba}"/>` : ''}
+  ${reflejo}`;
+}
+
 function banner(nombre, c) {
   const viajeIni = 0, viajeFin = TORRE_DER - TORRE_IZQ - 150; // how far the gondola travels
   const inicioX = TORRE_IZQ + 75;
@@ -113,6 +149,10 @@ function banner(nombre, c) {
       <stop offset="0" stop-color="${c.cieloArriba}"/>
       <stop offset="1" stop-color="${c.cieloAbajo}"/>
     </linearGradient>
+    <radialGradient id="brillo">
+      <stop offset="0" stop-color="${c.luz}" stop-opacity=".38"/>
+      <stop offset="1" stop-color="${c.luz}" stop-opacity="0"/>
+    </radialGradient>
   </defs>
   <style>
     .nombre { font: 700 64px 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; fill: ${c.texto}; letter-spacing: -1px; }
@@ -129,28 +169,100 @@ function banner(nombre, c) {
       46%, 54% { transform: translateX(${inicioX + viajeFin - viajeIni}px); animation-timing-function: cubic-bezier(.45, 0, .55, 1); }
       93%, 100% { transform: translateX(${inicioX}px); }
     }
+    .baliza { animation: baliza 2.4s ease-in-out infinite; }
+    .b2 { animation-delay: 1.2s; }
+    .barco1 { animation: ir 46s linear infinite; }
+    .barco2 { animation: volver 74s linear infinite; animation-delay: -30s; }
+    .vuelo { animation: volar 26s linear infinite; }
+    .v2 { animation-duration: 34s; animation-delay: -11s; }
+    .v3 { animation-duration: 41s; animation-delay: -24s; }
+    .ala { transform-box: fill-box; transform-origin: 50% 100%; animation: aleteo .9s ease-in-out infinite alternate; }
+    .v2 .ala { animation-duration: 1.2s; } .v3 .ala { animation-duration: 1.05s; }
+    .halo { animation: halo 7s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    .reflejo { animation: reflejo 3.2s ease-in-out infinite; }
+    .r1 { animation-delay: .5s; } .r2 { animation-delay: 1.1s; } .r3 { animation-delay: 1.7s; }
+    .frase { opacity: 0; animation: frase 15s ease-in-out infinite; }
+    .f2 { animation-delay: 5s; } .f3 { animation-delay: 10s; }
+    @keyframes cruzar {
+      0%, 7%   { transform: translateX(${inicioX}px); animation-timing-function: cubic-bezier(.45, 0, .55, 1); }
+      46%, 54% { transform: translateX(${inicioX + viajeFin - viajeIni}px); animation-timing-function: cubic-bezier(.45, 0, .55, 1); }
+      93%, 100% { transform: translateX(${inicioX}px); }
+    }
     @keyframes parpadeo { 0%, 100% { opacity: 1; } 50% { opacity: .65; } }
     @keyframes mecer { from { transform: translateX(0); } to { transform: translateX(-60px); } }
     @keyframes brillo { 0%, 100% { opacity: .9; } 50% { opacity: .25; } }
+    @keyframes baliza { 0%, 55%, 100% { opacity: .15; } 15%, 40% { opacity: 1; } }
+    @keyframes ir { from { transform: translateX(-90px); } to { transform: translateX(${W + 90}px); } }
+    @keyframes volver { from { transform: translateX(${W + 90}px); } to { transform: translateX(-90px); } }
+    @keyframes volar { from { transform: translateX(-40px); } to { transform: translateX(${W + 40}px); } }
+    @keyframes aleteo { from { transform: scaleY(1); } to { transform: scaleY(-.55); } }
+    @keyframes halo { 0%, 100% { transform: scale(1); opacity: .14; } 50% { transform: scale(1.35); opacity: .06; } }
+    @keyframes reflejo { 0%, 100% { opacity: .55; } 50% { opacity: .12; } }
+    @keyframes frase { 0% { opacity: 0; } 4%, 29% { opacity: 1; } 33%, 100% { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) {
-      .gondola, .luz, .onda, .est { animation: none; }
+      .gondola, .luz, .onda, .est, .baliza, .barco1, .barco2, .vuelo, .ala, .halo, .reflejo, .frase { animation: none; }
       .gondola { transform: translateX(${inicioX + 200}px); }
+      .barco1 { transform: translateX(300px); } .barco2 { transform: translateX(900px); }
+      .vuelo { display: none; }
+      .f1 { opacity: 1; }
     }
   </style>
 
   <rect width="${W}" height="${AGUA}" fill="url(#cielo)"/>
   ${estrellas(c)}
+  ${astro(nombre === 'dark', c)}
+  ${gaviotas(c)}
   <rect y="${AGUA}" width="${W}" height="${H - AGUA}" fill="${c.agua}"/>
   ${ondas(c)}
+  ${barcos(c)}
 
   <g stroke="${c.hierro}" stroke-width="2.2" fill="none">${torre(TORRE_IZQ, c)}${torre(TORRE_DER, c)}</g>
   ${tirantes(c)}
   ${vigaCeloso(TORRE_IZQ - 26 - 4 * 38, TORRE_DER + 26 + 4 * 38, c)}
+  ${balizas(c)}
   ${gondola(c)}
 
   <text class="nombre" x="64" y="168">Xabier</text>
-  <text class="linea" x="66" y="212">Software de gestión a medida</text>
-  <text class="lugar" x="66" y="246">Bilbao, en Raxtech</text>
+  <text class="linea frase f1" x="66" y="212">Software de gestión a medida</text>
+  <text class="linea frase f2" x="66" y="212">Laravel, Filament y .NET</text>
+  <text class="linea frase f3" x="66" y="212">Del código al servidor</text>
+  <text class="lugar" x="66" y="246">Bilbao</text>
+</svg>
+`;
+}
+
+// A strip of technology names that scrolls sideways forever, fading out at both ends.
+const TECNOLOGIAS = ['PHP', 'Laravel', 'Filament', 'C#', '.NET', 'MariaDB', 'MySQL', 'Redis', 'Livewire', 'Alpine.js', 'Tailwind CSS', 'Docker', 'Coolify', 'Linux', 'GitHub Actions'];
+
+function cinta(nombre, c) {
+  const alto = 52, hueco = 12, anchoCar = 8.6;
+  const pastillas = [];
+  let x = 0;
+  for (const t of TECNOLOGIAS) {
+    const ancho = Math.round(t.length * anchoCar + 34);
+    pastillas.push(`<g transform="translate(${x} 8)"><rect width="${ancho}" height="34" rx="17" fill="none" stroke="${c.hierroSuave}" stroke-width="1.4"/><text x="${ancho / 2}" y="22.5" text-anchor="middle">${t}</text></g>`);
+    x += ancho + hueco;
+  }
+  const largo = x; // one full set; the second copy follows it so the loop has no seam
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${alto}" width="${W}" height="${alto}" role="img" aria-label="Tecnologías: ${TECNOLOGIAS.join(', ')}">
+  <defs>
+    <linearGradient id="borde" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".08" stop-color="#fff" stop-opacity="1"/>
+      <stop offset=".92" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <mask id="m"><rect width="${W}" height="${alto}" fill="url(#borde)"/></mask>
+  </defs>
+  <style>
+    text { font: 500 15px 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; fill: ${c.texto}; }
+    .cinta { animation: desfilar 48s linear infinite; }
+    @keyframes desfilar { from { transform: translateX(0); } to { transform: translateX(-${largo}px); } }
+    @media (prefers-reduced-motion: reduce) { .cinta { animation: none; } }
+  </style>
+  <g mask="url(#m)">
+    <g class="cinta">${pastillas.join('')}<g transform="translate(${largo} 0)">${pastillas.join('')}</g></g>
+  </g>
 </svg>
 `;
 }
@@ -158,5 +270,6 @@ function banner(nombre, c) {
 mkdirSync('assets', { recursive: true }); // run from the repo root: node tools/generar-banner.mjs
 for (const [nombre, c] of Object.entries(paletas)) {
   writeFileSync(`assets/banner-${nombre}.svg`, banner(nombre, c));
+  writeFileSync(`assets/tecnologias-${nombre}.svg`, cinta(nombre, c));
 }
-console.log('listo: assets/banner-dark.svg y assets/banner-light.svg');
+console.log('listo: assets/banner-*.svg y assets/tecnologias-*.svg');

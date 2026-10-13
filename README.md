@@ -14,6 +14,12 @@ Hago aplicaciones de gestión a medida para empresas, desde la base de datos has
 
 ### Con qué trabajo
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/tecnologias-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/tecnologias-light.svg">
+  <img src="assets/tecnologias-dark.svg" alt="" width="100%">
+</picture>
+
 **Backend:** PHP, Laravel, Filament, C#, .NET
 **Datos:** MariaDB, MySQL, Redis
 **Interfaz:** Livewire, Alpine.js, Tailwind CSS
